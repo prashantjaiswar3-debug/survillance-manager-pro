@@ -386,9 +386,9 @@ export function CamerasPage() {
             <CameraForm onSave={handleSaveCamera} />
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative h-[calc(100vh-220px)] overflow-auto">
           <Table>
-            <TableHeader>
+            <TableHeader className="sticky top-0 bg-card z-10">
               <TableRow>
                 <TableHead className="w-[150px]">Name</TableHead>
                 <TableHead>Status</TableHead>
