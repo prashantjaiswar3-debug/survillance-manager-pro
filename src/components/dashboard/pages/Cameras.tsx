@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from 'react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import {
   Card,
   CardContent,
@@ -36,7 +38,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Download } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -249,6 +251,23 @@ export function CamerasPage() {
     setCameras((prevCameras) => prevCameras.filter((camera) => camera.id !== id));
   }
 
+  const handleDownloadPdf = () => {
+    const doc = new jsPDF();
+    (doc as any).autoTable({
+      head: [['Name', 'Status', 'Location', 'Zone', 'IP Address', 'NVR/Channel', 'POE/Port']],
+      body: cameras.map(camera => [
+        camera.name,
+        camera.status,
+        camera.location,
+        camera.zone,
+        camera.ipAddress,
+        `${camera.nvr} / ${camera.channel}`,
+        `${camera.poeSwitch} / ${camera.port}`
+      ]),
+    });
+    doc.save('camera-list.pdf');
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -258,7 +277,15 @@ export function CamerasPage() {
             A list of all camera devices on the network.
           </CardDescription>
         </div>
-        <AddCameraForm onAdd={handleAddCamera} />
+        <div className="flex gap-2">
+          <Button size="sm" className="h-8 gap-1" onClick={handleDownloadPdf}>
+            <Download className="h-3.5 w-3.5" />
+            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+              Download PDF
+            </span>
+          </Button>
+          <AddCameraForm onAdd={handleAddCamera} />
+        </div>
       </CardHeader>
       <CardContent>
         <Table>
