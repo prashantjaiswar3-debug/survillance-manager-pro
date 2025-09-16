@@ -46,14 +46,14 @@ export function DashboardHeader({
               <span className="sr-only">Toggle navigation menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left">
-            <nav className="grid gap-6 text-lg font-medium">
+          <SheetContent side="left" className="flex flex-col">
+            <nav className="grid gap-2 text-lg font-medium">
               <a
                 href="#"
-                className="flex items-center gap-2 text-lg font-semibold"
+                className="flex items-center gap-2 text-lg font-semibold mb-4"
               >
                 <Logo />
-                <span className="sr-only">CCTV Manager</span>
+                <span className="">CCTV Manager</span>
               </a>
               {menuItems.map((item) => (
                 <a
@@ -64,9 +64,9 @@ export function DashboardHeader({
                     setActivePage(item);
                   }}
                   className={cn(
-                    "hover:text-foreground",
+                    "mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 hover:text-foreground",
                     activePage === item
-                      ? "text-foreground"
+                      ? "bg-muted text-foreground"
                       : "text-muted-foreground"
                   )}
                 >
