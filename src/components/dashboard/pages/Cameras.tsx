@@ -273,7 +273,7 @@ export function CamerasPage() {
         `${camera.poeSwitch} / ${camera.port}`
       ]),
     });
-    doc.save('camera-list.pdf');
+    doc.output('dataurlnewwindow');
   };
 
   return (
@@ -290,7 +290,7 @@ export function CamerasPage() {
             <Button size="sm" className="h-8 gap-1" onClick={handleDownloadPdf}>
               <Download className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Download PDF
+                View PDF
               </span>
             </Button>
             <AddCameraForm onAdd={handleAddCamera} />
@@ -377,7 +377,7 @@ export function CamerasPage() {
               </DialogHeader>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                   <div className='relative aspect-video'>
-                    <Image src={`https://picsum.photos/seed/${selectedCamera.id}/640/480`} alt={selectedCamera.name} layout="fill" objectFit="cover" className="rounded-md" data-ai-hint="security camera" />
+                    <Image src={`https://picsum.photos/seed/${selectedCamera.id}/640/480`} alt={selectedCamera.name} fill objectFit="cover" className="rounded-md" data-ai-hint="security camera" />
                   </div>
                 <div className="space-y-2 text-sm">
                   <p><strong>Status:</strong> {selectedCamera.status}</p>
