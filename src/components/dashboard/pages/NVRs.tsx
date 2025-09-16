@@ -59,38 +59,51 @@ const initialNvrs = [
 
 type NVR = (typeof initialNvrs)[number];
 
-function AddNvrForm({ onAdd }: { onAdd: (nvr: Omit<NVR, 'id' | 'status'>) => void }) {
+function NvrForm({
+  nvr,
+  onSave,
+}: {
+  nvr?: NVR;
+  onSave: (nvr: Omit<NVR, 'id' | 'status'> & { id?: string }) => void;
+}) {
     const [open, setOpen] = useState(false);
+
+    const isEditMode = !!nvr;
   
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const formData = new FormData(event.currentTarget);
-      const newNvr = {
+      const nvrData = {
+        id: nvr?.id,
         name: formData.get('name') as string,
         storage: formData.get('storage') as string,
         ipAddress: formData.get('ipAddress') as string,
         channels: parseInt(formData.get('channels') as string, 10),
       };
-      onAdd(newNvr);
+      onSave(nvrData);
       setOpen(false);
     };
   
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button size="sm" className="h-8 gap-1">
-            <PlusCircle className="h-3.5 w-3.5" />
-            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-              Add NVR
-            </span>
-          </Button>
+          {isEditMode ? (
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit</DropdownMenuItem>
+          ) : (
+            <Button size="sm" className="h-8 gap-1">
+              <PlusCircle className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                Add NVR
+              </span>
+            </Button>
+          )}
         </DialogTrigger>
         <DialogContent>
           <form onSubmit={handleSubmit}>
             <DialogHeader>
-              <DialogTitle>Add NVR</DialogTitle>
+              <DialogTitle>{isEditMode ? 'Edit NVR' : 'Add NVR'}</DialogTitle>
               <DialogDescription>
-                Enter the details for the new NVR.
+                {isEditMode ? 'Update the details for this NVR.' : 'Enter the details for the new NVR.'}
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -98,25 +111,25 @@ function AddNvrForm({ onAdd }: { onAdd: (nvr: Omit<NVR, 'id' | 'status'>) => voi
                 <Label htmlFor="name" className="text-right">
                   Name
                 </Label>
-                <Input id="name" name="name" className="col-span-3" required />
+                <Input id="name" name="name" defaultValue={nvr?.name} className="col-span-3" required />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="storage" className="text-right">
                   Storage
                 </Label>
-                <Input id="storage" name="storage" className="col-span-3" required />
+                <Input id="storage" name="storage" defaultValue={nvr?.storage} className="col-span-3" required />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="ipAddress" className="text-right">
                   IP Address
                 </Label>
-                <Input id="ipAddress" name="ipAddress" className="col-span-3" required />
+                <Input id="ipAddress" name="ipAddress" defaultValue={nvr?.ipAddress} className="col-span-3" required />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="channels" className="text-right">
                   Channels
                 </Label>
-                <Input id="channels" name="channels" type="number" className="col-span-3" required />
+                <Input id="channels" name="channels" type="number" defaultValue={nvr?.channels} className="col-span-3" required />
               </div>
             </div>
             <DialogFooter>
@@ -131,9 +144,15 @@ function AddNvrForm({ onAdd }: { onAdd: (nvr: Omit<NVR, 'id' | 'status'>) => voi
 export function NVRsPage() {
     const [nvrs, setNvrs] = useState(initialNvrs);
 
-    const handleAddNvr = (newNvr: Omit<NVR, 'id' | 'status'>) => {
-        const nvrWithId = { ...newNvr, id: `NVR-${Date.now()}`, status: 'Offline' };
-        setNvrs((prevNvrs) => [...prevNvrs, nvrWithId]);
+    const handleSaveNvr = (nvrData: Omit<NVR, 'id' | 'status'> & { id?: string }) => {
+        if (nvrData.id) {
+            // Edit
+            setNvrs(nvrs.map(n => n.id === nvrData.id ? { ...n, ...nvrData } : n));
+        } else {
+            // Add
+            const newNvr = { ...nvrData, id: `NVR-${Date.now()}`, status: 'Offline' as const };
+            setNvrs((prevNvrs) => [...prevNvrs, newNvr]);
+        }
     };
 
     const handleDeleteNvr = (id: string) => {
@@ -149,7 +168,7 @@ export function NVRsPage() {
             Manage your Network Video Recorders.
             </CardDescription>
         </div>
-        <AddNvrForm onAdd={handleAddNvr} />
+        <NvrForm onSave={handleSaveNvr} />
       </CardHeader>
       <CardContent>
         <Table>
@@ -203,7 +222,7 @@ export function NVRsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <NvrForm nvr={nvr} onSave={handleSaveNvr} />
                         <DropdownMenuItem onClick={() => handleDeleteNvr(nvr.id)}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

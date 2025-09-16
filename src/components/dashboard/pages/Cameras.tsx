@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -36,7 +36,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MoreHorizontal, PlusCircle, Download, Eye } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Download } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -126,48 +126,64 @@ type Camera = (typeof initialCameras)[number];
 const zones = ['Zone 1', 'Zone 2', 'Outdoor', 'Unassigned'];
 const nvrs = ['NVR-001', 'NVR-002'];
 
-function AddCameraForm({ onAdd }: { onAdd: (camera: Omit<Camera, 'id'>) => void }) {
+function CameraForm({
+  camera,
+  onSave,
+}: {
+  camera?: Camera;
+  onSave: (camera: Omit<Camera, 'id' | 'status'> & { id?: string }) => void;
+}) {
   const [open, setOpen] = useState(false);
-  const [zone, setZone] = useState('Unassigned');
-  const [nvr, setNvr] = useState('');
+  const [zone, setZone] = useState(camera?.zone || 'Unassigned');
+  const [nvr, setNvr] = useState(camera?.nvr || '');
+
+  const isEditMode = !!camera;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const newCamera = {
+    const newCameraData = {
+      id: camera?.id,
       name: formData.get('name') as string,
       location: formData.get('location') as string,
       ipAddress: formData.get('ipAddress') as string,
-      status: 'Offline', // Default status
       zone: zone,
       nvr: nvr,
       channel: parseInt(formData.get('channel') as string, 10),
       poeSwitch: formData.get('poeSwitch') as string,
       port: parseInt(formData.get('port') as string, 10),
     };
-    onAdd(newCamera);
+    onSave(newCameraData);
     setOpen(false);
-    event.currentTarget.reset();
-    setZone('Unassigned');
-    setNvr('');
+    if (!isEditMode) {
+      event.currentTarget.reset();
+      setZone('Unassigned');
+      setNvr('');
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="h-8 gap-1">
-          <PlusCircle className="h-3.5 w-3.5" />
-          <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-            Add Camera
-          </span>
-        </Button>
+        {isEditMode ? (
+          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit</DropdownMenuItem>
+        ) : (
+          <Button size="sm" className="h-8 gap-1">
+            <PlusCircle className="h-3.5 w-3.5" />
+            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+              Add Camera
+            </span>
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Add Camera</DialogTitle>
+            <DialogTitle>{isEditMode ? 'Edit Camera' : 'Add Camera'}</DialogTitle>
             <DialogDescription>
-              Enter the details for the new camera.
+              {isEditMode
+                ? 'Update the details for this camera.'
+                : 'Enter the details for the new camera.'}
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-4">
@@ -175,25 +191,25 @@ function AddCameraForm({ onAdd }: { onAdd: (camera: Omit<Camera, 'id'>) => void 
               <Label htmlFor="name" className="text-right col-span-1">
                 Name
               </Label>
-              <Input id="name" name="name" className="col-span-3" required />
+              <Input id="name" name="name" defaultValue={camera?.name} className="col-span-3" required />
             </div>
             <div className="grid grid-cols-4 items-center gap-4 col-span-2">
               <Label htmlFor="location" className="text-right col-span-1">
                 Location
               </Label>
-              <Input id="location" name="location" className="col-span-3" required />
+              <Input id="location" name="location" defaultValue={camera?.location} className="col-span-3" required />
             </div>
             <div className="grid grid-cols-4 items-center gap-4 col-span-2">
               <Label htmlFor="ipAddress" className="text-right col-span-1">
                 IP Address
               </Label>
-              <Input id="ipAddress" name="ipAddress" className="col-span-3" required />
+              <Input id="ipAddress" name="ipAddress" defaultValue={camera?.ipAddress} className="col-span-3" required />
             </div>
              <div className="grid grid-cols-4 items-center gap-4 col-span-2">
               <Label htmlFor="zone" className="text-right col-span-1">
                 Zone
               </Label>
-              <Select name="zone" onValueChange={setZone} value={zone}>
+              <Select name="zone" onValueChange={setZone} defaultValue={zone}>
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select a zone" />
                 </SelectTrigger>
@@ -210,7 +226,7 @@ function AddCameraForm({ onAdd }: { onAdd: (camera: Omit<Camera, 'id'>) => void 
                 <Label htmlFor="nvr" className="text-right">
                   NVR
                 </Label>
-                 <Select name="nvr" onValueChange={setNvr} value={nvr}>
+                 <Select name="nvr" onValueChange={setNvr} defaultValue={nvr}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select an NVR" />
                     </SelectTrigger>
@@ -227,19 +243,19 @@ function AddCameraForm({ onAdd }: { onAdd: (camera: Omit<Camera, 'id'>) => void 
                 <Label htmlFor="channel" className="text-right">
                   Channel
                 </Label>
-                <Input id="channel" name="channel" type="number" required />
+                <Input id="channel" name="channel" type="number" defaultValue={camera?.channel} required />
             </div>
              <div className="grid grid-cols-2 items-center gap-4">
                 <Label htmlFor="poeSwitch" className="text-right">
                   POE Switch
                 </Label>
-                <Input id="poeSwitch" name="poeSwitch" required />
+                <Input id="poeSwitch" name="poeSwitch" defaultValue={camera?.poeSwitch} required />
             </div>
             <div className="grid grid-cols-2 items-center gap-4">
                 <Label htmlFor="port" className="text-right">
                   Port
                 </Label>
-                <Input id="port" name="port" type="number" required />
+                <Input id="port" name="port" type="number" defaultValue={camera?.port} required />
             </div>
           </div>
           <DialogFooter>
@@ -257,9 +273,15 @@ export function CamerasPage() {
   const [selectedCamera, setSelectedCamera] = useState<Camera | null>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
 
-  const handleAddCamera = (newCamera: Omit<Camera, 'id'>) => {
-    const cameraWithId = { ...newCamera, id: `CAM-${Date.now()}` };
-    setCameras((prevCameras) => [...prevCameras, cameraWithId]);
+  const handleSaveCamera = (cameraData: Omit<Camera, 'id' | 'status'> & { id?: string }) => {
+    if (cameraData.id) {
+      // Edit
+      setCameras(cameras.map(c => c.id === cameraData.id ? { ...c, ...cameraData } : c));
+    } else {
+      // Add
+      const newCamera = { ...cameraData, id: `CAM-${Date.now()}`, status: 'Offline' as const };
+      setCameras(prevCameras => [...prevCameras, newCamera]);
+    }
   };
 
   const handleDeleteCamera = (id: string) => {
@@ -272,8 +294,8 @@ export function CamerasPage() {
   }
 
   const handleDownloadPdf = async () => {
-    const jsPDF = (await import('jspdf')).default;
-    const autoTable = (await import('jspdf-autotable')).default;
+    const { default: jsPDF } = await import('jspdf');
+    const { default: autoTable } = await import('jspdf-autotable');
     const doc = new jsPDF();
     autoTable(doc, {
       head: [['Name', 'Status', 'Location', 'Zone', 'IP Address', 'NVR/Channel', 'POE/Port']],
@@ -307,7 +329,7 @@ export function CamerasPage() {
                 View PDF
               </span>
             </Button>
-            <AddCameraForm onAdd={handleAddCamera} />
+            <CameraForm onSave={handleSaveCamera} />
           </div>
         </CardHeader>
         <CardContent>
@@ -367,7 +389,7 @@ export function CamerasPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem onClick={() => handleViewCamera(camera)}>View</DropdownMenuItem>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <CameraForm camera={camera} onSave={handleSaveCamera} />
                         <DropdownMenuItem onClick={() => handleDeleteCamera(camera.id)}>Delete</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
