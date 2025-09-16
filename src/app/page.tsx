@@ -1,14 +1,12 @@
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
+import { DashboardHorizontalNav } from '@/components/dashboard/DashboardHorizontalNav';
 
 export default function Home() {
   return (
-    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-      <DashboardSidebar />
-      <div className="flex flex-col">
-        <DashboardHeader />
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6"></main>
-      </div>
+    <div className="flex min-h-screen w-full flex-col">
+      <DashboardHeader />
+      <DashboardHorizontalNav />
+      <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6"></main>
     </div>
   );
 }

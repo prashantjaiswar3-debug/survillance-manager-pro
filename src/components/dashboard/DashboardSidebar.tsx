@@ -1,6 +1,5 @@
 import { Logo } from "@/components/Logo";
-
-export const menuItems = ["Cameras", "NVRs", "POE Switch", "Todo", "IP Scanner"];
+import { menuItems } from "./DashboardHorizontalNav";
 
 export function DashboardSidebar() {
   return (
