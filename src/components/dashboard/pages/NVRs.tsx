@@ -14,7 +14,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
+import { Network } from 'lucide-react';
 
 const nvrs = [
   {
@@ -48,7 +48,6 @@ export function NVRsPage() {
               <TableHead>Status</TableHead>
               <TableHead>Storage</TableHead>
               <TableHead>IP Address</TableHead>
-              <TableHead>Auto Ping</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -70,9 +69,6 @@ export function NVRsPage() {
                 </TableCell>
                 <TableCell>{nvr.storage}</TableCell>
                 <TableCell>{nvr.ipAddress}</TableCell>
-                <TableCell>
-                  <Switch id={`autoping-${nvr.name}`} />
-                </TableCell>
               </TableRow>
             ))}
           </TableBody>
