@@ -5,6 +5,54 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+
+const cameras = [
+  {
+    name: 'CAM-001',
+    status: 'Online',
+    location: 'Lobby',
+    ipAddress: '192.168.1.10',
+  },
+  {
+    name: 'CAM-002',
+    status: 'Online',
+    location: 'Office',
+    ipAddress: '192.168.1.11',
+  },
+  {
+    name: 'CAM-003',
+    status: 'Offline',
+    location: 'Warehouse',
+    ipAddress: '192.168.1.12',
+  },
+  {
+    name: 'CAM-004',
+    status: 'Online',
+    location: 'Parking Lot',
+    ipAddress: '192.168.1.13',
+  },
+  {
+    name: 'CAM-005',
+    status: 'Maintenance',
+    location: 'Entrance',
+    ipAddress: '192.168.1.14',
+  },
+  {
+    name: 'CAM-006',
+    status: 'Online',
+    location: 'Rooftop',
+    ipAddress: '192.168.1.15',
+  },
+];
 
 export function CamerasPage() {
   return (
@@ -12,25 +60,42 @@ export function CamerasPage() {
       <CardHeader>
         <CardTitle>Cameras</CardTitle>
         <CardDescription>
-          Live feeds and recordings from all your cameras.
+          A list of all camera devices on the network.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="border rounded-lg p-2">
-              <div className="bg-muted aspect-video w-full rounded-md flex items-center justify-center">
-                <p className="text-muted-foreground">Camera Feed {i}</p>
-              </div>
-              <div className="mt-2">
-                <p className="font-semibold">Camera {i}</p>
-                <p className="text-sm text-muted-foreground">
-                  Location: Hallway {i}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead>IP Address</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {cameras.map((camera) => (
+              <TableRow key={camera.name}>
+                <TableCell className="font-medium">{camera.name}</TableCell>
+                <TableCell>
+                  <Badge
+                    variant={
+                      camera.status === 'Online'
+                        ? 'default'
+                        : camera.status === 'Offline'
+                          ? 'destructive'
+                          : 'secondary'
+                    }
+                  >
+                    {camera.status}
+                  </Badge>
+                </TableCell>
+                <TableCell>{camera.location}</TableCell>
+                <TableCell>{camera.ipAddress}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
   );
