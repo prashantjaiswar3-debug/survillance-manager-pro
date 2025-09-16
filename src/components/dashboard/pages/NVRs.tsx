@@ -147,7 +147,7 @@ export function NVRsPage() {
     const handleSaveNvr = (nvrData: Omit<NVR, 'id' | 'status'> & { id?: string }) => {
         if (nvrData.id) {
             // Edit
-            setNvrs(nvrs.map(n => n.id === nvrData.id ? { ...n, ...nvrData } : n));
+            setNvrs(nvrs.map(n => n.id === nvrData.id ? { ...n, ...nvrData } as NVR : n));
         } else {
             // Add
             const newNvr = { ...nvrData, id: `NVR-${Date.now()}`, status: 'Offline' as const };
@@ -222,7 +222,7 @@ export function NVRsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <NvrForm nvr={nvr} onSave={handleSaveNvr} />
+                        <NvrForm key={nvr.id} nvr={nvr} onSave={handleSaveNvr} />
                         <DropdownMenuItem onClick={() => handleDeleteNvr(nvr.id)}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

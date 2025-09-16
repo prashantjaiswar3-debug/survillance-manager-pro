@@ -155,11 +155,6 @@ function CameraForm({
     };
     onSave(newCameraData);
     setOpen(false);
-    if (!isEditMode) {
-      event.currentTarget.reset();
-      setZone('Unassigned');
-      setNvr('');
-    }
   };
 
   return (
@@ -276,7 +271,7 @@ export function CamerasPage() {
   const handleSaveCamera = (cameraData: Omit<Camera, 'id' | 'status'> & { id?: string }) => {
     if (cameraData.id) {
       // Edit
-      setCameras(cameras.map(c => c.id === cameraData.id ? { ...c, ...cameraData } : c));
+      setCameras(cameras.map(c => c.id === cameraData.id ? { ...c, ...cameraData } as Camera : c));
     } else {
       // Add
       const newCamera = { ...cameraData, id: `CAM-${Date.now()}`, status: 'Offline' as const };
@@ -389,7 +384,7 @@ export function CamerasPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem onClick={() => handleViewCamera(camera)}>View</DropdownMenuItem>
-                        <CameraForm camera={camera} onSave={handleSaveCamera} />
+                        <CameraForm key={camera.id} camera={camera} onSave={handleSaveCamera} />
                         <DropdownMenuItem onClick={() => handleDeleteCamera(camera.id)}>Delete</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
