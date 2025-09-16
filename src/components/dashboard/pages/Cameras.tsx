@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from 'react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 import {
   Card,
   CardContent,
@@ -251,9 +249,11 @@ export function CamerasPage() {
     setCameras((prevCameras) => prevCameras.filter((camera) => camera.id !== id));
   }
 
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async () => {
+    const jsPDF = (await import('jspdf')).default;
+    const autoTable = (await import('jspdf-autotable')).default;
     const doc = new jsPDF();
-    (doc as any).autoTable({
+    autoTable(doc, {
       head: [['Name', 'Status', 'Location', 'Zone', 'IP Address', 'NVR/Channel', 'POE/Port']],
       body: cameras.map(camera => [
         camera.name,
