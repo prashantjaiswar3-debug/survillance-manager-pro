@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 export const metadata: Metadata = {
   title: 'CCTV Manager',
   description: 'Your customizable dashboard for monitoring and management.',
+  manifest: '/manifest.webmanifest',
 };
 
 export default function RootLayout({
