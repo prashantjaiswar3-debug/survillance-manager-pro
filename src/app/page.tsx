@@ -9,7 +9,6 @@ import { POESwitchPage, type PoeSwitch } from '@/components/dashboard/pages/POES
 import { TodoPage } from '@/components/dashboard/pages/Todo';
 import { IPScannerPage } from '@/components/dashboard/pages/IPScanner';
 import { ZonesPage } from '@/components/dashboard/pages/Zones';
-import { LocalhostGuidePage } from '@/components/dashboard/pages/LocalhostGuide';
 import { menuItems } from '@/components/dashboard/DashboardHorizontalNav';
 
 type MenuItem = (typeof menuItems)[number];
@@ -147,8 +146,6 @@ export default function Home() {
         return <IPScannerPage cameras={cameras} nvrs={nvrs} poeSwitches={poeSwitches} />;
       case 'Zones':
         return <ZonesPage />;
-      case 'Localhost Guide':
-        return <LocalhostGuidePage />;
       default:
         return <CamerasPage cameras={cameras} setCameras={setCameras} nvrs={nvrs} poeSwitches={poeSwitches} />;
     }
