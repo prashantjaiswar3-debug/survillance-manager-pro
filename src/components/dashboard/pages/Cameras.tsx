@@ -14,6 +14,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 
 const cameras = [
   {
@@ -71,6 +72,7 @@ export function CamerasPage() {
               <TableHead>Status</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>IP Address</TableHead>
+              <TableHead>Auto Ping</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -92,6 +94,9 @@ export function CamerasPage() {
                 </TableCell>
                 <TableCell>{camera.location}</TableCell>
                 <TableCell>{camera.ipAddress}</TableCell>
+                <TableCell>
+                  <Switch id={`autoping-${camera.name}`} />
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
