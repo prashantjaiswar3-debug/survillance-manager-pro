@@ -53,6 +53,10 @@ const initialCameras = [
     location: 'Lobby',
     ipAddress: '192.168.1.10',
     zone: 'Zone 1',
+    nvr: 'NVR-001',
+    channel: 1,
+    poeSwitch: 'SW-001',
+    port: 1,
   },
   {
     id: 'CAM-002',
@@ -61,6 +65,10 @@ const initialCameras = [
     location: 'Office',
     ipAddress: '192.168.1.11',
     zone: 'Zone 1',
+    nvr: 'NVR-001',
+    channel: 2,
+    poeSwitch: 'SW-001',
+    port: 2,
   },
   {
     id: 'CAM-003',
@@ -69,6 +77,10 @@ const initialCameras = [
     location: 'Warehouse',
     ipAddress: '192.168.1.12',
     zone: 'Zone 2',
+    nvr: 'NVR-001',
+    channel: 3,
+    poeSwitch: 'SW-001',
+    port: 3,
   },
   {
     id: 'CAM-004',
@@ -77,6 +89,10 @@ const initialCameras = [
     location: 'Parking Lot',
     ipAddress: '192.168.1.13',
     zone: 'Outdoor',
+    nvr: 'NVR-002',
+    channel: 1,
+    poeSwitch: 'SW-002',
+    port: 1,
   },
   {
     id: 'CAM-005',
@@ -85,6 +101,10 @@ const initialCameras = [
     location: 'Entrance',
     ipAddress: '192.168.1.14',
     zone: 'Zone 1',
+    nvr: 'NVR-002',
+    channel: 2,
+    poeSwitch: 'SW-002',
+    port: 2,
   },
   {
     id: 'CAM-006',
@@ -93,6 +113,10 @@ const initialCameras = [
     location: 'Rooftop',
     ipAddress: '192.168.1.15',
     zone: 'Outdoor',
+    nvr: 'NVR-002',
+    channel: 3,
+    poeSwitch: 'SW-002',
+    port: 3,
   },
 ];
 
@@ -113,6 +137,10 @@ function AddCameraForm({ onAdd }: { onAdd: (camera: Omit<Camera, 'id'>) => void 
       ipAddress: formData.get('ipAddress') as string,
       status: 'Offline', // Default status
       zone: zone,
+      nvr: formData.get('nvr') as string,
+      channel: parseInt(formData.get('channel') as string, 10),
+      poeSwitch: formData.get('poeSwitch') as string,
+      port: parseInt(formData.get('port') as string, 10),
     };
     onAdd(newCamera);
     setOpen(false);
@@ -130,7 +158,7 @@ function AddCameraForm({ onAdd }: { onAdd: (camera: Omit<Camera, 'id'>) => void 
           </span>
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[600px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Add Camera</DialogTitle>
@@ -138,27 +166,27 @@ function AddCameraForm({ onAdd }: { onAdd: (camera: Omit<Camera, 'id'>) => void 
               Enter the details for the new camera.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
+          <div className="grid grid-cols-2 gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4 col-span-2">
+              <Label htmlFor="name" className="text-right col-span-1">
                 Name
               </Label>
               <Input id="name" name="name" className="col-span-3" required />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="location" className="text-right">
+            <div className="grid grid-cols-4 items-center gap-4 col-span-2">
+              <Label htmlFor="location" className="text-right col-span-1">
                 Location
               </Label>
               <Input id="location" name="location" className="col-span-3" required />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="ipAddress" className="text-right">
+            <div className="grid grid-cols-4 items-center gap-4 col-span-2">
+              <Label htmlFor="ipAddress" className="text-right col-span-1">
                 IP Address
               </Label>
               <Input id="ipAddress" name="ipAddress" className="col-span-3" required />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="zone" className="text-right">
+             <div className="grid grid-cols-4 items-center gap-4 col-span-2">
+              <Label htmlFor="zone" className="text-right col-span-1">
                 Zone
               </Label>
               <Select name="zone" onValueChange={setZone} value={zone}>
@@ -173,6 +201,30 @@ function AddCameraForm({ onAdd }: { onAdd: (camera: Omit<Camera, 'id'>) => void 
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="grid grid-cols-2 items-center gap-4">
+                <Label htmlFor="nvr" className="text-right">
+                  NVR
+                </Label>
+                <Input id="nvr" name="nvr" required />
+            </div>
+             <div className="grid grid-cols-2 items-center gap-4">
+                <Label htmlFor="channel" className="text-right">
+                  Channel
+                </Label>
+                <Input id="channel" name="channel" type="number" required />
+            </div>
+             <div className="grid grid-cols-2 items-center gap-4">
+                <Label htmlFor="poeSwitch" className="text-right">
+                  POE Switch
+                </Label>
+                <Input id="poeSwitch" name="poeSwitch" required />
+            </div>
+            <div className="grid grid-cols-2 items-center gap-4">
+                <Label htmlFor="port" className="text-right">
+                  Port
+                </Label>
+                <Input id="port" name="port" type="number" required />
             </div>
           </div>
           <DialogFooter>
@@ -217,6 +269,10 @@ export function CamerasPage() {
               <TableHead>Location</TableHead>
               <TableHead>Zone</TableHead>
               <TableHead>IP Address</TableHead>
+              <TableHead>NVR</TableHead>
+              <TableHead>Channel</TableHead>
+              <TableHead>POE Switch</TableHead>
+              <TableHead>Port</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -250,6 +306,10 @@ export function CamerasPage() {
                 <TableCell>{camera.location}</TableCell>
                 <TableCell>{camera.zone}</TableCell>
                 <TableCell>{camera.ipAddress}</TableCell>
+                <TableCell>{camera.nvr}</TableCell>
+                <TableCell>{camera.channel}</TableCell>
+                <TableCell>{camera.poeSwitch}</TableCell>
+                <TableCell>{camera.port}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
