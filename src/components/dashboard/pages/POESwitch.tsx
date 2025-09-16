@@ -37,6 +37,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const initialPoeSwitches = [
   {
@@ -188,68 +189,68 @@ export function POESwitchPage() {
         <PoeSwitchForm onSave={handleSavePoeSwitch} />
       </CardHeader>
       <CardContent>
-         <div className="relative h-[calc(100vh-250px)] overflow-auto">
-        <Table>
-          <TableHeader className="sticky top-0 bg-card z-10">
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Model</TableHead>
-              <TableHead>IP Address</TableHead>
-              <TableHead>Ports</TableHead>
-              <TableHead>
-                <span className="sr-only">Actions</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {poeSwitches.map((sw) => (
-              <TableRow key={sw.id}>
-                <TableCell className="font-medium">{sw.name}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      variant={
-                        sw.status === 'Online'
-                          ? 'default'
-                          : sw.status === 'Offline'
-                            ? 'destructive'
-                            : 'secondary'
-                      }
-                    >
-                      {sw.status}
-                    </Badge>
-                     {sw.status === 'Online' && (
-                      <span className="relative flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                      </span>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell>{sw.model}</TableCell>
-                <TableCell>{sw.ipAddress}</TableCell>
-                <TableCell>{sw.ports}</TableCell>
-                <TableCell>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                        </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <PoeSwitchForm key={sw.id} poeSwitch={sw} onSave={handleSavePoeSwitch} />
-                        <DropdownMenuItem onClick={() => handleDeletePoeSwitch(sw.id)}>Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </TableCell>
+        <ScrollArea className="h-[calc(100vh-250px)]">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Model</TableHead>
+                <TableHead>IP Address</TableHead>
+                <TableHead>Ports</TableHead>
+                <TableHead>
+                  <span className="sr-only">Actions</span>
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        </div>
+            </TableHeader>
+            <TableBody>
+              {poeSwitches.map((sw) => (
+                <TableRow key={sw.id}>
+                  <TableCell className="font-medium">{sw.name}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant={
+                          sw.status === 'Online'
+                            ? 'default'
+                            : sw.status === 'Offline'
+                              ? 'destructive'
+                              : 'secondary'
+                        }
+                      >
+                        {sw.status}
+                      </Badge>
+                       {sw.status === 'Online' && (
+                        <span className="relative flex h-3 w-3">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>{sw.model}</TableCell>
+                  <TableCell>{sw.ipAddress}</TableCell>
+                  <TableCell>{sw.ports}</TableCell>
+                  <TableCell>
+                      <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                          <Button aria-haspopup="true" size="icon" variant="ghost">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Toggle menu</span>
+                          </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <PoeSwitchForm key={sw.id} poeSwitch={sw} onSave={handleSavePoeSwitch} />
+                          <DropdownMenuItem onClick={() => handleDeletePoeSwitch(sw.id)}>Delete</DropdownMenuItem>
+                          </DropdownMenuContent>
+                      </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ScrollArea>
       </CardContent>
     </Card>
   );

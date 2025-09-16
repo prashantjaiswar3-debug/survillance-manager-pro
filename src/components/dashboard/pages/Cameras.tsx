@@ -45,6 +45,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import Image from 'next/image';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const initialCameras = [
   {
@@ -397,73 +398,73 @@ export function CamerasPage() {
           </div>
         </CardHeader>
         <CardContent>
-           <div className="relative h-[calc(100vh-250px)] overflow-auto">
-          <Table>
-            <TableHeader className="sticky top-0 bg-card z-10">
-              <TableRow>
-                <TableHead className="w-[150px]">Name</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-[150px]">Location</TableHead>
-                <TableHead>Zone</TableHead>
-                <TableHead>IP Address</TableHead>
-                <TableHead>NVR / Channel</TableHead>
-                <TableHead>POE Switch / Port</TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {cameras.map((camera) => (
-                <TableRow key={camera.id}>
-                  <TableCell className="font-medium">{camera.name}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant={
-                          camera.status === 'Online'
-                            ? 'default'
-                            : camera.status === 'Offline'
-                              ? 'destructive'
-                              : 'secondary'
-                        }
-                      >
-                        {camera.status}
-                      </Badge>
-                      {camera.status === 'Online' && (
-                        <span className="relative flex h-3 w-3">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                        </span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>{camera.location}</TableCell>
-                  <TableCell>{camera.zone}</TableCell>
-                  <TableCell>{camera.ipAddress}</TableCell>
-                  <TableCell>{camera.nvr} / {camera.channel}</TableCell>
-                  <TableCell>{camera.poeSwitch} / {camera.port}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => handleViewCamera(camera)}>View</DropdownMenuItem>
-                        <CameraForm key={camera.id} camera={camera} onSave={handleSaveCamera} allCameras={cameras} />
-                        <DropdownMenuItem onClick={() => handleDeleteCamera(camera.id)}>Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          <ScrollArea className="h-[calc(100vh-250px)]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[150px]">Name</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="w-[150px]">Location</TableHead>
+                  <TableHead>Zone</TableHead>
+                  <TableHead>IP Address</TableHead>
+                  <TableHead>NVR / Channel</TableHead>
+                  <TableHead>POE Switch / Port</TableHead>
+                  <TableHead>
+                    <span className="sr-only">Actions</span>
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          </div>
+              </TableHeader>
+              <TableBody>
+                {cameras.map((camera) => (
+                  <TableRow key={camera.id}>
+                    <TableCell className="font-medium">{camera.name}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant={
+                            camera.status === 'Online'
+                              ? 'default'
+                              : camera.status === 'Offline'
+                                ? 'destructive'
+                                : 'secondary'
+                          }
+                        >
+                          {camera.status}
+                        </Badge>
+                        {camera.status === 'Online' && (
+                          <span className="relative flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>{camera.location}</TableCell>
+                    <TableCell>{camera.zone}</TableCell>
+                    <TableCell>{camera.ipAddress}</TableCell>
+                    <TableCell>{camera.nvr} / {camera.channel}</TableCell>
+                    <TableCell>{camera.poeSwitch} / {camera.port}</TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button aria-haspopup="true" size="icon" variant="ghost">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Toggle menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handleViewCamera(camera)}>View</DropdownMenuItem>
+                          <CameraForm key={camera.id} camera={camera} onSave={handleSaveCamera} allCameras={cameras} />
+                          <DropdownMenuItem onClick={() => handleDeleteCamera(camera.id)}>Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </ScrollArea>
         </CardContent>
       </Card>
 

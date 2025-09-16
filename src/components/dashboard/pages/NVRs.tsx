@@ -37,6 +37,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const initialNvrs = [
   {
@@ -190,68 +191,68 @@ export function NVRsPage() {
         <NvrForm onSave={handleSaveNvr} />
       </CardHeader>
       <CardContent>
-         <div className="relative h-[calc(100vh-250px)] overflow-auto">
-        <Table>
-          <TableHeader className="sticky top-0 bg-card z-10">
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Storage</TableHead>
-              <TableHead>IP Address</TableHead>
-              <TableHead>Channels</TableHead>
-              <TableHead>
-                <span className="sr-only">Actions</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {nvrs.map((nvr) => (
-              <TableRow key={nvr.id}>
-                <TableCell className="font-medium">{nvr.name}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      variant={
-                        nvr.status === 'Online'
-                          ? 'default'
-                          : nvr.status === 'Offline'
-                            ? 'destructive'
-                            : 'secondary'
-                      }
-                    >
-                      {nvr.status}
-                    </Badge>
-                     {nvr.status === 'Online' && (
-                      <span className="relative flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                      </span>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell>{nvr.storage}</TableCell>
-                <TableCell>{nvr.ipAddress}</TableCell>
-                <TableCell>{nvr.channels}</TableCell>
-                <TableCell>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                        </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <NvrForm key={nvr.id} nvr={nvr} onSave={handleSaveNvr} />
-                        <DropdownMenuItem onClick={() => handleDeleteNvr(nvr.id)}>Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </TableCell>
+        <ScrollArea className="h-[calc(100vh-250px)]">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Storage</TableHead>
+                <TableHead>IP Address</TableHead>
+                <TableHead>Channels</TableHead>
+                <TableHead>
+                  <span className="sr-only">Actions</span>
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        </div>
+            </TableHeader>
+            <TableBody>
+              {nvrs.map((nvr) => (
+                <TableRow key={nvr.id}>
+                  <TableCell className="font-medium">{nvr.name}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant={
+                          nvr.status === 'Online'
+                            ? 'default'
+                            : nvr.status === 'Offline'
+                              ? 'destructive'
+                              : 'secondary'
+                        }
+                      >
+                        {nvr.status}
+                      </Badge>
+                       {nvr.status === 'Online' && (
+                        <span className="relative flex h-3 w-3">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>{nvr.storage}</TableCell>
+                  <TableCell>{nvr.ipAddress}</TableCell>
+                  <TableCell>{nvr.channels}</TableCell>
+                  <TableCell>
+                      <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                          <Button aria-haspopup="true" size="icon" variant="ghost">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Toggle menu</span>
+                          </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <NvrForm key={nvr.id} nvr={nvr} onSave={handleSaveNvr} />
+                          <DropdownMenuItem onClick={() => handleDeleteNvr(nvr.id)}>Delete</DropdownMenuItem>
+                          </DropdownMenuContent>
+                      </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ScrollArea>
       </CardContent>
     </Card>
   );
