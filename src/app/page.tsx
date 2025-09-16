@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { DashboardHorizontalNav } from '@/components/dashboard/DashboardHorizontalNav';
 import { CamerasPage, type Camera } from '@/components/dashboard/pages/Cameras';
@@ -10,6 +10,9 @@ import { TodoPage } from '@/components/dashboard/pages/Todo';
 import { IPScannerPage } from '@/components/dashboard/pages/IPScanner';
 import { ZonesPage } from '@/components/dashboard/pages/Zones';
 import { menuItems } from '@/components/dashboard/DashboardHorizontalNav';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import { Loader } from 'lucide-react';
 
 type MenuItem = (typeof menuItems)[number];
 
@@ -127,10 +130,29 @@ const initialPoeSwitches: PoeSwitch[] = [
 ];
 
 export default function Home() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const [activePage, setActivePage] = useState<MenuItem>('Cameras');
   const [cameras, setCameras] = useState<Camera[]>(initialCameras);
   const [nvrs, setNvrs] = useState<NVR[]>(initialNvrs);
   const [poeSwitches, setPoeSwitches] = useState<PoeSwitch[]>(initialPoeSwitches);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+
+  if (loading || !user) {
+    return (
+      <div className="flex min-h-screen w-full flex-col items-center justify-center">
+        <Loader className="h-12 w-12 animate-spin" />
+        <p className="mt-4 text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
 
   const renderPage = () => {
     switch (activePage) {
