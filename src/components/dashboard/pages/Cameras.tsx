@@ -124,10 +124,12 @@ const initialCameras = [
 type Camera = (typeof initialCameras)[number];
 
 const zones = ['Zone 1', 'Zone 2', 'Outdoor', 'Unassigned'];
+const nvrs = ['NVR-001', 'NVR-002'];
 
 function AddCameraForm({ onAdd }: { onAdd: (camera: Omit<Camera, 'id'>) => void }) {
   const [open, setOpen] = useState(false);
   const [zone, setZone] = useState('Unassigned');
+  const [nvr, setNvr] = useState('');
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -138,7 +140,7 @@ function AddCameraForm({ onAdd }: { onAdd: (camera: Omit<Camera, 'id'>) => void 
       ipAddress: formData.get('ipAddress') as string,
       status: 'Offline', // Default status
       zone: zone,
-      nvr: formData.get('nvr') as string,
+      nvr: nvr,
       channel: parseInt(formData.get('channel') as string, 10),
       poeSwitch: formData.get('poeSwitch') as string,
       port: parseInt(formData.get('port') as string, 10),
@@ -147,6 +149,7 @@ function AddCameraForm({ onAdd }: { onAdd: (camera: Omit<Camera, 'id'>) => void 
     setOpen(false);
     event.currentTarget.reset();
     setZone('Unassigned');
+    setNvr('');
   };
 
   return (
@@ -207,7 +210,18 @@ function AddCameraForm({ onAdd }: { onAdd: (camera: Omit<Camera, 'id'>) => void 
                 <Label htmlFor="nvr" className="text-right">
                   NVR
                 </Label>
-                <Input id="nvr" name="nvr" required />
+                 <Select name="nvr" onValueChange={setNvr} value={nvr}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an NVR" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {nvrs.map((nvrItem) => (
+                        <SelectItem key={nvrItem} value={nvrItem}>
+                          {nvrItem}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
             </div>
              <div className="grid grid-cols-2 items-center gap-4">
                 <Label htmlFor="channel" className="text-right">
