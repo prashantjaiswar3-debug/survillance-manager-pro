@@ -2,7 +2,7 @@
 
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { menuItems } from "./DashboardHorizontalNav";
 import { cn } from "@/lib/utils";
@@ -37,14 +37,22 @@ export function DashboardHeader({
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="flex flex-col">
+            <SheetHeader className="mb-4 text-left">
+                <SheetTitle>
+                    <a
+                        href="#"
+                        className="flex items-center gap-2 text-lg font-semibold"
+                        onClick={(e) => e.preventDefault()}
+                    >
+                        <Logo />
+                        <span className="">CCTV Manager</span>
+                    </a>
+                </SheetTitle>
+                <SheetDescription>
+                    Select a page to navigate to.
+                </SheetDescription>
+            </SheetHeader>
             <nav className="grid gap-2 text-lg font-medium">
-              <a
-                href="#"
-                className="flex items-center gap-2 text-lg font-semibold mb-4"
-              >
-                <Logo />
-                <span className="">CCTV Manager</span>
-              </a>
               {menuItems.map((item) => (
                 <a
                   href="#"
