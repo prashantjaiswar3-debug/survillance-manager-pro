@@ -14,7 +14,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Network } from 'lucide-react';
+import { Wifi } from 'lucide-react';
 
 const nvrs = [
   {
@@ -35,7 +35,10 @@ export function NVRsPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>NVRs</CardTitle>
+        <div className="flex items-center gap-2">
+          <Wifi className="h-6 w-6" />
+          <CardTitle>NVRs</CardTitle>
+        </div>
         <CardDescription>
           Manage your Network Video Recorders.
         </CardDescription>

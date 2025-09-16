@@ -14,7 +14,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Network } from 'lucide-react';
+import { Wifi } from 'lucide-react';
 
 const cameras = [
   {
@@ -59,7 +59,10 @@ export function CamerasPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Cameras</CardTitle>
+        <div className="flex items-center gap-2">
+          <Wifi className="h-6 w-6" />
+          <CardTitle>Cameras</CardTitle>
+        </div>
         <CardDescription>
           A list of all camera devices on the network.
         </CardDescription>
