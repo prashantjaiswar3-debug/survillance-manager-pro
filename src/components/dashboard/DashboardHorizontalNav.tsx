@@ -1,6 +1,20 @@
-export const menuItems = ["Cameras", "NVRs", "POE Switch", "Todo", "IP Scanner"];
+"use client";
 
-export function DashboardHorizontalNav() {
+import { cn } from "@/lib/utils";
+
+export const menuItems = ["Cameras", "NVRs", "POE Switch", "Todo", "IP Scanner"] as const;
+
+type MenuItem = (typeof menuItems)[number];
+
+type DashboardHorizontalNavProps = {
+  activePage: MenuItem;
+  setActivePage: (page: MenuItem) => void;
+};
+
+export function DashboardHorizontalNav({
+  activePage,
+  setActivePage,
+}: DashboardHorizontalNavProps) {
   return (
     <nav className="hidden border-b bg-background md:block">
       <div className="flex h-12 items-center px-4 lg:px-6">
@@ -9,7 +23,16 @@ export function DashboardHorizontalNav() {
             <a
               key={item}
               href="#"
-              className="text-muted-foreground transition-colors hover:text-foreground"
+              onClick={(e) => {
+                e.preventDefault();
+                setActivePage(item);
+              }}
+              className={cn(
+                "transition-colors hover:text-foreground",
+                activePage === item
+                  ? "text-foreground"
+                  : "text-muted-foreground"
+              )}
             >
               {item}
             </a>

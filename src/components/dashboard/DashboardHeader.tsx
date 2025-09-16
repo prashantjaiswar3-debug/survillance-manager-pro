@@ -6,8 +6,19 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Search } from "lucide-react";
 import { menuItems } from "./DashboardHorizontalNav";
+import { cn } from "@/lib/utils";
 
-export function DashboardHeader() {
+type MenuItem = (typeof menuItems)[number];
+
+type DashboardHeaderProps = {
+  activePage: MenuItem;
+  setActivePage: (page: MenuItem) => void;
+};
+
+export function DashboardHeader({
+  activePage,
+  setActivePage,
+}: DashboardHeaderProps) {
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
       <div className="flex items-center gap-2">
@@ -48,7 +59,16 @@ export function DashboardHeader() {
                 <a
                   href="#"
                   key={item}
-                  className="text-muted-foreground hover:text-foreground"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActivePage(item);
+                  }}
+                  className={cn(
+                    "hover:text-foreground",
+                    activePage === item
+                      ? "text-foreground"
+                      : "text-muted-foreground"
+                  )}
                 >
                   {item}
                 </a>
