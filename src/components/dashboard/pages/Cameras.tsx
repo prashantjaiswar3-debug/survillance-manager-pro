@@ -37,7 +37,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MoreHorizontal, PlusCircle, Download, Printer } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Download, Printer, Camera as CameraIcon } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -561,8 +561,8 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
                 </DialogDescription>
               </DialogHeader>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                  <div className='relative aspect-video'>
-                    <Image src={`https://picsum.photos/seed/${selectedCamera.id}/640/480`} alt={selectedCamera.name} fill objectFit="cover" className="rounded-md" data-ai-hint="security camera" />
+                  <div className='relative aspect-video bg-muted rounded-md flex items-center justify-center'>
+                    <CameraIcon className="w-16 h-16 text-muted-foreground" />
                   </div>
                 <div className="space-y-2 text-sm">
                   <p><strong>Status:</strong> {selectedCamera.status}</p>
