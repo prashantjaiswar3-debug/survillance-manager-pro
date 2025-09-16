@@ -131,9 +131,11 @@ const poeSwitches = [{id: 'SW-001', ports: 8}, {id: 'SW-002', ports: 16}];
 function CameraForm({
   camera,
   onSave,
+  allCameras,
 }: {
   camera?: Camera;
   onSave: (camera: Omit<Camera, 'id' | 'status'> & { id?: string }) => void;
+  allCameras: Camera[];
 }) {
   const [open, setOpen] = useState(false);
   const [zone, setZone] = useState(camera?.zone || 'Unassigned');
@@ -164,6 +166,14 @@ function CameraForm({
 
   const selectedNvr = nvrs.find(n => n.id === nvr);
   const selectedPoeSwitch = poeSwitches.find(p => p.id === poeSwitch);
+
+  const usedChannels = allCameras
+    .filter(c => c.nvr === nvr && c.id !== camera?.id)
+    .map(c => c.channel);
+
+  const usedPorts = allCameras
+    .filter(c => c.poeSwitch === poeSwitch && c.id !== camera?.id)
+    .map(c => c.port);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -252,7 +262,7 @@ function CameraForm({
                     </SelectTrigger>
                     <SelectContent>
                       {selectedNvr && Array.from({ length: selectedNvr.channels }, (_, i) => i + 1).map(ch => (
-                        <SelectItem key={ch} value={ch.toString()}>
+                        <SelectItem key={ch} value={ch.toString()} disabled={usedChannels.includes(ch)}>
                           {ch}
                         </SelectItem>
                       ))}
@@ -286,7 +296,7 @@ function CameraForm({
                     </SelectTrigger>
                     <SelectContent>
                        {selectedPoeSwitch && Array.from({ length: selectedPoeSwitch.ports }, (_, i) => i + 1).map(p => (
-                        <SelectItem key={p} value={p.toString()}>
+                        <SelectItem key={p} value={p.toString()} disabled={usedPorts.includes(p)}>
                           {p}
                         </SelectItem>
                       ))}
@@ -383,7 +393,7 @@ export function CamerasPage() {
                 View PDF
               </span>
             </Button>
-            <CameraForm onSave={handleSaveCamera} />
+            <CameraForm onSave={handleSaveCamera} allCameras={cameras} />
           </div>
         </CardHeader>
         <CardContent className="relative h-[calc(100vh-220px)] overflow-auto">
@@ -443,7 +453,7 @@ export function CamerasPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem onClick={() => handleViewCamera(camera)}>View</DropdownMenuItem>
-                        <CameraForm key={camera.id} camera={camera} onSave={handleSaveCamera} />
+                        <CameraForm key={camera.id} camera={camera} onSave={handleSaveCamera} allCameras={cameras} />
                         <DropdownMenuItem onClick={() => handleDeleteCamera(camera.id)}>Delete</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
