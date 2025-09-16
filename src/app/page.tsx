@@ -1,13 +1,13 @@
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { CCTVWidget } from '@/components/widgets/CCTVWidget';
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <DashboardHeader />
-      <main className="flex-1 p-4 md:p-6 lg:p-8">
-        <div className="flex flex-col items-center justify-center h-full min-h-[50vh] text-center text-muted-foreground border-2 border-dashed rounded-lg p-12">
-            <h2 className="text-2xl font-semibold">Dashboard is Empty</h2>
-            <p className="mt-2">The dashboard has been cleared.</p>
+      <main className="flex-1">
+        <div className="w-full h-full">
+            <CCTVWidget widget={{ id: 'main-cctv', type: 'cctv', x:0, y:0, w:12, h:12, title: '', content: {}}} />
         </div>
       </main>
     </div>
