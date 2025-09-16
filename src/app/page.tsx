@@ -8,6 +8,7 @@ import { NVRsPage } from '@/components/dashboard/pages/NVRs';
 import { POESwitchPage } from '@/components/dashboard/pages/POESwitch';
 import { TodoPage } from '@/components/dashboard/pages/Todo';
 import { IPScannerPage } from '@/components/dashboard/pages/IPScanner';
+import { ZonesPage } from '@/components/dashboard/pages/Zones';
 import { menuItems } from '@/components/dashboard/DashboardHorizontalNav';
 
 type MenuItem = (typeof menuItems)[number];
@@ -27,6 +28,8 @@ export default function Home() {
         return <TodoPage />;
       case 'IP Scanner':
         return <IPScannerPage />;
+      case 'Zones':
+        return <ZonesPage />;
       default:
         return <CamerasPage />;
     }

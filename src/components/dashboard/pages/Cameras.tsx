@@ -37,6 +37,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const initialCameras = [
   {
@@ -45,6 +52,7 @@ const initialCameras = [
     status: 'Online',
     location: 'Lobby',
     ipAddress: '192.168.1.10',
+    zone: 'Zone 1',
   },
   {
     id: 'CAM-002',
@@ -52,6 +60,7 @@ const initialCameras = [
     status: 'Online',
     location: 'Office',
     ipAddress: '192.168.1.11',
+    zone: 'Zone 1',
   },
   {
     id: 'CAM-003',
@@ -59,6 +68,7 @@ const initialCameras = [
     status: 'Offline',
     location: 'Warehouse',
     ipAddress: '192.168.1.12',
+    zone: 'Zone 2',
   },
   {
     id: 'CAM-004',
@@ -66,6 +76,7 @@ const initialCameras = [
     status: 'Online',
     location: 'Parking Lot',
     ipAddress: '192.168.1.13',
+    zone: 'Outdoor',
   },
   {
     id: 'CAM-005',
@@ -73,6 +84,7 @@ const initialCameras = [
     status: 'Maintenance',
     location: 'Entrance',
     ipAddress: '192.168.1.14',
+    zone: 'Zone 1',
   },
   {
     id: 'CAM-006',
@@ -80,13 +92,17 @@ const initialCameras = [
     status: 'Online',
     location: 'Rooftop',
     ipAddress: '192.168.1.15',
+    zone: 'Outdoor',
   },
 ];
 
 type Camera = (typeof initialCameras)[number];
 
+const zones = ['Zone 1', 'Zone 2', 'Outdoor', 'Unassigned'];
+
 function AddCameraForm({ onAdd }: { onAdd: (camera: Omit<Camera, 'id'>) => void }) {
   const [open, setOpen] = useState(false);
+  const [zone, setZone] = useState('Unassigned');
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -96,9 +112,12 @@ function AddCameraForm({ onAdd }: { onAdd: (camera: Omit<Camera, 'id'>) => void 
       location: formData.get('location') as string,
       ipAddress: formData.get('ipAddress') as string,
       status: 'Offline', // Default status
+      zone: zone,
     };
     onAdd(newCamera);
     setOpen(false);
+    event.currentTarget.reset();
+    setZone('Unassigned');
   };
 
   return (
@@ -137,6 +156,23 @@ function AddCameraForm({ onAdd }: { onAdd: (camera: Omit<Camera, 'id'>) => void 
                 IP Address
               </Label>
               <Input id="ipAddress" name="ipAddress" className="col-span-3" required />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="zone" className="text-right">
+                Zone
+              </Label>
+              <Select name="zone" onValueChange={setZone} value={zone}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select a zone" />
+                </SelectTrigger>
+                <SelectContent>
+                  {zones.map((zone) => (
+                    <SelectItem key={zone} value={zone}>
+                      {zone}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>
@@ -179,6 +215,7 @@ export function CamerasPage() {
               <TableHead>Name</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Location</TableHead>
+              <TableHead>Zone</TableHead>
               <TableHead>IP Address</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
@@ -211,6 +248,7 @@ export function CamerasPage() {
                   </div>
                 </TableCell>
                 <TableCell>{camera.location}</TableCell>
+                <TableCell>{camera.zone}</TableCell>
                 <TableCell>{camera.ipAddress}</TableCell>
                 <TableCell>
                   <DropdownMenu>
