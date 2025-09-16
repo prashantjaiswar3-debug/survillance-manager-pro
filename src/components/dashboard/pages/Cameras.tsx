@@ -36,7 +36,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MoreHorizontal, PlusCircle, Download } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Download, Eye } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -44,6 +44,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import Image from 'next/image';
 
 const initialCameras = [
   {
@@ -239,6 +240,8 @@ function AddCameraForm({ onAdd }: { onAdd: (camera: Omit<Camera, 'id'>) => void 
 
 export function CamerasPage() {
   const [cameras, setCameras] = useState(initialCameras);
+  const [selectedCamera, setSelectedCamera] = useState<Camera | null>(null);
+  const [isViewOpen, setIsViewOpen] = useState(false);
 
   const handleAddCamera = (newCamera: Omit<Camera, 'id'>) => {
     const cameraWithId = { ...newCamera, id: `CAM-${Date.now()}` };
@@ -247,6 +250,11 @@ export function CamerasPage() {
 
   const handleDeleteCamera = (id: string) => {
     setCameras((prevCameras) => prevCameras.filter((camera) => camera.id !== id));
+  }
+
+  const handleViewCamera = (camera: Camera) => {
+    setSelectedCamera(camera);
+    setIsViewOpen(true);
   }
 
   const handleDownloadPdf = async () => {
@@ -269,90 +277,119 @@ export function CamerasPage() {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle>Cameras</CardTitle>
-          <CardDescription>
-            A list of all camera devices on the network.
-          </CardDescription>
-        </div>
-        <div className="flex gap-2">
-          <Button size="sm" className="h-8 gap-1" onClick={handleDownloadPdf}>
-            <Download className="h-3.5 w-3.5" />
-            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-              Download PDF
-            </span>
-          </Button>
-          <AddCameraForm onAdd={handleAddCamera} />
-        </div>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[150px]">Name</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="w-[150px]">Location</TableHead>
-              <TableHead>Zone</TableHead>
-              <TableHead>IP Address</TableHead>
-              <TableHead>NVR / Channel</TableHead>
-              <TableHead>POE Switch / Port</TableHead>
-              <TableHead>
-                <span className="sr-only">Actions</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {cameras.map((camera) => (
-              <TableRow key={camera.id}>
-                <TableCell className="font-medium">{camera.name}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      variant={
-                        camera.status === 'Online'
-                          ? 'default'
-                          : camera.status === 'Offline'
-                            ? 'destructive'
-                            : 'secondary'
-                      }
-                    >
-                      {camera.status}
-                    </Badge>
-                    {camera.status === 'Online' && (
-                      <span className="relative flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                      </span>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell>{camera.location}</TableCell>
-                <TableCell>{camera.zone}</TableCell>
-                <TableCell>{camera.ipAddress}</TableCell>
-                <TableCell>{camera.nvr} / {camera.channel}</TableCell>
-                <TableCell>{camera.poeSwitch} / {camera.port}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button aria-haspopup="true" size="icon" variant="ghost">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Toggle menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDeleteCamera(camera.id)}>Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
+    <>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Cameras</CardTitle>
+            <CardDescription>
+              A list of all camera devices on the network.
+            </CardDescription>
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" className="h-8 gap-1" onClick={handleDownloadPdf}>
+              <Download className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                Download PDF
+              </span>
+            </Button>
+            <AddCameraForm onAdd={handleAddCamera} />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[150px]">Name</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="w-[150px]">Location</TableHead>
+                <TableHead>Zone</TableHead>
+                <TableHead>IP Address</TableHead>
+                <TableHead>NVR / Channel</TableHead>
+                <TableHead>POE Switch / Port</TableHead>
+                <TableHead>
+                  <span className="sr-only">Actions</span>
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+            </TableHeader>
+            <TableBody>
+              {cameras.map((camera) => (
+                <TableRow key={camera.id}>
+                  <TableCell className="font-medium">{camera.name}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant={
+                          camera.status === 'Online'
+                            ? 'default'
+                            : camera.status === 'Offline'
+                              ? 'destructive'
+                              : 'secondary'
+                        }
+                      >
+                        {camera.status}
+                      </Badge>
+                      {camera.status === 'Online' && (
+                        <span className="relative flex h-3 w-3">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>{camera.location}</TableCell>
+                  <TableCell>{camera.zone}</TableCell>
+                  <TableCell>{camera.ipAddress}</TableCell>
+                  <TableCell>{camera.nvr} / {camera.channel}</TableCell>
+                  <TableCell>{camera.poeSwitch} / {camera.port}</TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Toggle menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => handleViewCamera(camera)}>View</DropdownMenuItem>
+                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDeleteCamera(camera.id)}>Delete</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+        <DialogContent className="sm:max-w-4xl">
+          {selectedCamera && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{selectedCamera.name}</DialogTitle>
+                <DialogDescription>
+                  {selectedCamera.location} - {selectedCamera.ipAddress}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                  <div className='relative aspect-video'>
+                    <Image src={`https://picsum.photos/seed/${selectedCamera.id}/640/480`} alt={selectedCamera.name} layout="fill" objectFit="cover" className="rounded-md" data-ai-hint="security camera" />
+                  </div>
+                <div className="space-y-2 text-sm">
+                  <p><strong>Status:</strong> {selectedCamera.status}</p>
+                  <p><strong>Zone:</strong> {selectedCamera.zone}</p>
+                  <p><strong>NVR/Channel:</strong> {selectedCamera.nvr} / {selectedCamera.channel}</p>
+                  <p><strong>POE Switch/Port:</strong> {selectedCamera.poeSwitch} / {selectedCamera.port}</p>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
