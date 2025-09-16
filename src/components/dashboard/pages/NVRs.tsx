@@ -45,6 +45,7 @@ const initialNvrs = [
     status: 'Online',
     storage: '8 TB',
     ipAddress: '192.168.1.100',
+    channels: 8,
   },
   {
     id: 'NVR-002',
@@ -52,6 +53,7 @@ const initialNvrs = [
     status: 'Offline',
     storage: '16 TB',
     ipAddress: '192.168.1.101',
+    channels: 16,
   },
 ];
 
@@ -67,6 +69,7 @@ function AddNvrForm({ onAdd }: { onAdd: (nvr: Omit<NVR, 'id' | 'status'>) => voi
         name: formData.get('name') as string,
         storage: formData.get('storage') as string,
         ipAddress: formData.get('ipAddress') as string,
+        channels: parseInt(formData.get('channels') as string, 10),
       };
       onAdd(newNvr);
       setOpen(false);
@@ -109,6 +112,12 @@ function AddNvrForm({ onAdd }: { onAdd: (nvr: Omit<NVR, 'id' | 'status'>) => voi
                 </Label>
                 <Input id="ipAddress" name="ipAddress" className="col-span-3" required />
               </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="channels" className="text-right">
+                  Channels
+                </Label>
+                <Input id="channels" name="channels" type="number" className="col-span-3" required />
+              </div>
             </div>
             <DialogFooter>
               <Button type="submit">Save NVR</Button>
@@ -150,6 +159,7 @@ export function NVRsPage() {
               <TableHead>Status</TableHead>
               <TableHead>Storage</TableHead>
               <TableHead>IP Address</TableHead>
+              <TableHead>Channels</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -182,6 +192,7 @@ export function NVRsPage() {
                 </TableCell>
                 <TableCell>{nvr.storage}</TableCell>
                 <TableCell>{nvr.ipAddress}</TableCell>
+                <TableCell>{nvr.channels}</TableCell>
                 <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
