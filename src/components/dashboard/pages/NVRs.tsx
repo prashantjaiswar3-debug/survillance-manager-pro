@@ -42,6 +42,13 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import QRCode from 'qrcode';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 type NvrStatus = 'Online' | 'Offline' | 'Maintenance';
 export type NVR = {
@@ -200,6 +207,7 @@ type NVRsPageProps = {
 export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
     const [selectedNvr, setSelectedNvr] = useState<NVR | null>(null);
     const [isStickerOpen, setIsStickerOpen] = useState(false);
+    const [statusFilter, setStatusFilter] = useState('All');
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -218,6 +226,11 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
     
         return () => clearInterval(interval);
       }, [setNvrs]);
+
+    const filteredNvrs = nvrs.filter(nvr => {
+        if (statusFilter === 'All') return true;
+        return nvr.status === statusFilter;
+    });
 
     const handleSaveNvr = (nvrData: Omit<NVR, 'id' | 'status'> & { id?: string }) => {
         if (nvrData.id) {
@@ -292,7 +305,18 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
               Manage your Network Video Recorders.
               </CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[180px] h-8">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All Statuses</SelectItem>
+                  <SelectItem value="Online">Online</SelectItem>
+                  <SelectItem value="Offline">Offline</SelectItem>
+                  <SelectItem value="Maintenance">Maintenance</SelectItem>
+                </SelectContent>
+              </Select>
             <Button size="sm" className="h-8 gap-1" onClick={handlePrintAllStickers}>
               <Printer className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
@@ -318,7 +342,7 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {nvrs.map((nvr) => (
+                {filteredNvrs.map((nvr) => (
                   <TableRow key={nvr.id}>
                     <TableCell className="font-medium">{nvr.name}</TableCell>
                     <TableCell>

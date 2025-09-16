@@ -42,6 +42,13 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import QRCode from 'qrcode';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 type PoeSwitchStatus = 'Online' | 'Offline' | 'Maintenance';
 export type PoeSwitch = {
@@ -200,6 +207,7 @@ type POESwitchPageProps = {
 export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProps) {
     const [selectedSwitch, setSelectedSwitch] = useState<PoeSwitch | null>(null);
     const [isStickerOpen, setIsStickerOpen] = useState(false);
+    const [statusFilter, setStatusFilter] = useState('All');
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -218,6 +226,11 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
     
         return () => clearInterval(interval);
       }, [setPoeSwitches]);
+
+    const filteredPoeSwitches = poeSwitches.filter(sw => {
+        if (statusFilter === 'All') return true;
+        return sw.status === statusFilter;
+    });
 
     const handleSavePoeSwitch = (poeSwitchData: Omit<PoeSwitch, 'id' | 'status'> & { id?: string }) => {
         if (poeSwitchData.id) {
@@ -292,7 +305,18 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
               Manage your Power Over Ethernet switches.
               </CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[180px] h-8">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All Statuses</SelectItem>
+                  <SelectItem value="Online">Online</SelectItem>
+                  <SelectItem value="Offline">Offline</SelectItem>
+                  <SelectItem value="Maintenance">Maintenance</SelectItem>
+                </SelectContent>
+              </Select>
             <Button size="sm" className="h-8 gap-1" onClick={handlePrintAllStickers}>
                 <Printer className="h-3.5 w-3.5" />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
@@ -318,7 +342,7 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {poeSwitches.map((sw) => (
+                {filteredPoeSwitches.map((sw) => (
                   <TableRow key={sw.id}>
                     <TableCell className="font-medium">{sw.name}</TableCell>
                     <TableCell>

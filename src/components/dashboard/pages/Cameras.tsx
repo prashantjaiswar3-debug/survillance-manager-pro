@@ -326,6 +326,7 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
   const [selectedCamera, setSelectedCamera] = useState<Camera | null>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isStickerOpen, setIsStickerOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('All');
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -344,6 +345,11 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
 
     return () => clearInterval(interval);
   }, [setCameras]);
+  
+  const filteredCameras = cameras.filter(camera => {
+    if (statusFilter === 'All') return true;
+    return camera.status === statusFilter;
+  });
 
   const handleSaveCamera = (cameraData: Omit<Camera, 'id' | 'status'> & { id?: string }) => {
     if (cameraData.id) {
@@ -444,7 +450,18 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
               A list of all camera devices on the network.
             </CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[180px] h-8">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All Statuses</SelectItem>
+                  <SelectItem value="Online">Online</SelectItem>
+                  <SelectItem value="Offline">Offline</SelectItem>
+                  <SelectItem value="Maintenance">Maintenance</SelectItem>
+                </SelectContent>
+              </Select>
             <Button size="sm" className="h-8 gap-1" onClick={handleDownloadPdf}>
               <Download className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
@@ -478,7 +495,7 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {cameras.map((camera) => (
+                {filteredCameras.map((camera) => (
                   <TableRow key={camera.id}>
                     <TableCell className="font-medium">{camera.name}</TableCell>
                     <TableCell>
