@@ -264,9 +264,9 @@ export function CamerasPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
+              <TableHead className="w-[150px]">Name</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Location</TableHead>
+              <TableHead className="w-[150px]">Location</TableHead>
               <TableHead>Zone</TableHead>
               <TableHead>IP Address</TableHead>
               <TableHead>NVR / Channel</TableHead>
