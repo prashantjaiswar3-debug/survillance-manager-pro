@@ -1,4 +1,4 @@
-import { ListTodo, StickyNote, Link as LinkIcon } from 'lucide-react';
+import { ListTodo, StickyNote, Link as LinkIcon, Camera } from 'lucide-react';
 import { WidgetType } from './types';
 
 export const WIDGET_TYPES: {
@@ -25,4 +25,10 @@ export const WIDGET_TYPES: {
     description: 'A collection of useful links.',
     icon: LinkIcon,
   },
+  {
+    type: 'cctv',
+    name: 'CCTV Feed',
+    description: 'Live feed from a CCTV camera.',
+    icon: Camera,
+  }
 ];

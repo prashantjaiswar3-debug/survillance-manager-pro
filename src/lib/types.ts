@@ -1,4 +1,4 @@
-export type WidgetType = 'note' | 'todo' | 'link';
+export type WidgetType = 'note' | 'todo' | 'link' | 'cctv';
 
 export type Widget = {
   id: string;

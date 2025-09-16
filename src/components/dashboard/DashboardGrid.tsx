@@ -5,6 +5,7 @@ import { WidgetWrapper } from './WidgetWrapper';
 import { NoteWidget } from '../widgets/NoteWidget';
 import { TodoListWidget } from '../widgets/TodoListWidget';
 import { QuickLinkWidget } from '../widgets/QuickLinkWidget';
+import { CCTVWidget } from '../widgets/CCTVWidget';
 
 export function DashboardGrid() {
   const { widgets } = useDashboard();
@@ -34,6 +35,7 @@ export function DashboardGrid() {
               {widget.type === 'note' && <NoteWidget widget={widget} />}
               {widget.type === 'todo' && <TodoListWidget widget={widget} />}
               {widget.type === 'link' && <QuickLinkWidget widget={widget} />}
+              {widget.type === 'cctv' && <CCTVWidget widget={widget} />}
             </WidgetWrapper>
           </div>
         );

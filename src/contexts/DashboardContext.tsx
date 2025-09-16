@@ -27,6 +27,8 @@ const getDefaultWidget = (type: WidgetType): Omit<Widget, 'id'| 'x' | 'y'> => {
             return { type, w: 4, h: 3, title: 'To-do List', content: [] };
         case 'link':
             return { type, w: 3, h: 2, title: 'Quick Links', content: [] };
+        case 'cctv':
+            return { type, w: 6, h: 4, title: 'CCTV Camera', content: { cameraName: 'Lobby' } };
         default:
             throw new Error('Unknown widget type');
     }
