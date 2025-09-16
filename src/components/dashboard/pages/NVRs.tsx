@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -57,7 +57,8 @@ const initialNvrs = [
   },
 ];
 
-type NVR = (typeof initialNvrs)[number];
+type NvrStatus = 'Online' | 'Offline' | 'Maintenance';
+type NVR = (typeof initialNvrs)[number] & { status: NvrStatus };
 
 function NvrForm({
   nvr,
@@ -142,7 +143,25 @@ function NvrForm({
   }
 
 export function NVRsPage() {
-    const [nvrs, setNvrs] = useState(initialNvrs);
+    const [nvrs, setNvrs] = useState<NVR[]>(initialNvrs as NVR[]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+          setNvrs(prevNvrs => {
+            if (prevNvrs.length === 0) return prevNvrs;
+            const randomIndex = Math.floor(Math.random() * prevNvrs.length);
+            return prevNvrs.map((nvr, index) => {
+              if (index === randomIndex) {
+                const newStatus = nvr.status === 'Online' ? 'Offline' : 'Online';
+                return { ...nvr, status: newStatus as NvrStatus };
+              }
+              return nvr;
+            });
+          });
+        }, 5000); // Toggles a random NVR's status every 5 seconds
+    
+        return () => clearInterval(interval);
+      }, []);
 
     const handleSaveNvr = (nvrData: Omit<NVR, 'id' | 'status'> & { id?: string }) => {
         if (nvrData.id) {

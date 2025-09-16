@@ -121,7 +121,8 @@ const initialCameras = [
   },
 ];
 
-type Camera = (typeof initialCameras)[number];
+type CameraStatus = 'Online' | 'Offline' | 'Maintenance';
+type Camera = (typeof initialCameras)[number] & { status: CameraStatus };
 
 const zones = ['Zone 1', 'Zone 2', 'Outdoor', 'Unassigned'];
 const nvrs = ['NVR-001', 'NVR-002'];
@@ -264,9 +265,27 @@ function CameraForm({
 
 
 export function CamerasPage() {
-  const [cameras, setCameras] = useState(initialCameras);
+  const [cameras, setCameras] = useState<Camera[]>(initialCameras as Camera[]);
   const [selectedCamera, setSelectedCamera] = useState<Camera | null>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCameras(prevCameras => {
+        if (prevCameras.length === 0) return prevCameras;
+        const randomIndex = Math.floor(Math.random() * prevCameras.length);
+        return prevCameras.map((camera, index) => {
+          if (index === randomIndex) {
+            const newStatus = camera.status === 'Online' ? 'Offline' : 'Online';
+            return { ...camera, status: newStatus as CameraStatus };
+          }
+          return camera;
+        });
+      });
+    }, 5000); // Toggles a random camera's status every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSaveCamera = (cameraData: Omit<Camera, 'id' | 'status'> & { id?: string }) => {
     if (cameraData.id) {
