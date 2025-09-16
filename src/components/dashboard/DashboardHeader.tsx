@@ -12,7 +12,9 @@ export function DashboardHeader() {
     <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
       <div className="flex items-center gap-2">
         <Logo />
-        <span className="text-2xl font-bold">CCTV Manager</span>
+        <span className="text-4xl font-bold whitespace-nowrap">
+          CCTV Manager
+        </span>
       </div>
 
       <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
