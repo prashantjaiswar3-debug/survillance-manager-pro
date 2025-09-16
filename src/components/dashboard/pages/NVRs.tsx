@@ -189,7 +189,8 @@ export function NVRsPage() {
         </div>
         <NvrForm onSave={handleSaveNvr} />
       </CardHeader>
-      <CardContent className="relative h-[calc(100vh-220px)] overflow-auto">
+      <CardContent>
+         <div className="relative h-[calc(100vh-250px)] overflow-auto">
         <Table>
           <TableHeader className="sticky top-0 bg-card z-10">
             <TableRow>
@@ -250,6 +251,7 @@ export function NVRsPage() {
             ))}
           </TableBody>
         </Table>
+        </div>
       </CardContent>
     </Card>
   );

@@ -187,7 +187,8 @@ export function POESwitchPage() {
         </div>
         <PoeSwitchForm onSave={handleSavePoeSwitch} />
       </CardHeader>
-      <CardContent className="relative h-[calc(100vh-220px)] overflow-auto">
+      <CardContent>
+         <div className="relative h-[calc(100vh-250px)] overflow-auto">
         <Table>
           <TableHeader className="sticky top-0 bg-card z-10">
             <TableRow>
@@ -248,6 +249,7 @@ export function POESwitchPage() {
             ))}
           </TableBody>
         </Table>
+        </div>
       </CardContent>
     </Card>
   );
