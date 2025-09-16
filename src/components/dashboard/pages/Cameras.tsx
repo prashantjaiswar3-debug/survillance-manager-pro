@@ -443,41 +443,48 @@ export function CamerasPage() {
 
   const handlePrintAllStickers = () => {
     const doc = new jsPDF('p', 'mm', 'a4');
-    const stickerWidth = 95;
-    const stickerHeight = 54;
+    const stickerWidth = 90; 
+    const stickerHeight = 50; 
     const marginX = (210 - stickerWidth * 2) / 3;
-    const marginY = 10;
+    const marginY = (297 - stickerHeight * 5) / 6;
     const camerasPerPage = 10;
-    let cameraIndex = 0;
-
+  
     cameras.forEach((camera, index) => {
       const pageIndex = Math.floor(index / camerasPerPage);
       if (index % camerasPerPage === 0 && pageIndex > 0) {
         doc.addPage();
       }
-      cameraIndex = index % camerasPerPage;
+      const cameraIndex = index % camerasPerPage;
       
       const x = marginX + (cameraIndex % 2) * (stickerWidth + marginX);
       const y = marginY + Math.floor(cameraIndex / 2) * (stickerHeight + marginY);
       
       doc.setDrawColor(150);
       doc.roundedRect(x, y, stickerWidth, stickerHeight, 3, 3, 'S');
-
-      doc.setFontSize(12);
+  
+      doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
-      doc.text(camera.name, x + 5, y + 10);
-
-      doc.setFontSize(8);
+      doc.text(camera.name, x + 5, y + 8);
+  
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-
-      doc.text(`ID: ${camera.id}`, x + 5, y + 18);
-      doc.text(`IP: ${camera.ipAddress}`, x + 5, y + 24);
-      doc.text(`Location: ${camera.location}`, x + 5, y + 30);
-      doc.text(`Zone: ${camera.zone}`, x + 5, y + 36);
-      doc.text(`NVR: ${camera.nvr} / Ch: ${camera.channel}`, x + 5, y + 42);
-      doc.text(`Switch: ${camera.poeSwitch} / Port: ${camera.port}`, x + 5, y + 48);
+      
+      const lineHeight = 5.5;
+      let currentY = y + 18;
+  
+      doc.text(`ID: ${camera.id}`, x + 5, currentY);
+      currentY += lineHeight;
+      doc.text(`IP: ${camera.ipAddress}`, x + 5, currentY);
+      currentY += lineHeight;
+      doc.text(`Location: ${camera.location}`, x + 5, currentY);
+      currentY += lineHeight;
+      doc.text(`Zone: ${camera.zone}`, x + 5, currentY);
+      currentY += lineHeight;
+      doc.text(`NVR: ${camera.nvr} / Ch: ${camera.channel}`, x + 5, currentY);
+      currentY += lineHeight;
+      doc.text(`Switch: ${camera.poeSwitch} / Port: ${camera.port}`, x + 5, currentY);
     });
-
+  
     doc.output('dataurlnewwindow');
   };
 
