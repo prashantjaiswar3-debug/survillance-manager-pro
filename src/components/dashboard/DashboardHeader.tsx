@@ -23,7 +23,7 @@ export function DashboardHeader({
       <div className="flex items-center gap-2">
         <Logo />
         <span className="text-4xl font-bold whitespace-nowrap">
-          CCTV Manager
+          Surveillance Manager <span className="text-gold">PRO</span>
         </span>
       </div>
 
@@ -45,7 +45,7 @@ export function DashboardHeader({
                         onClick={(e) => e.preventDefault()}
                     >
                         <Logo />
-                        <span className="">CCTV Manager</span>
+                        <span className="">Surveillance Manager <span className="text-gold">PRO</span></span>
                     </a>
                 </SheetTitle>
                 <SheetDescription>

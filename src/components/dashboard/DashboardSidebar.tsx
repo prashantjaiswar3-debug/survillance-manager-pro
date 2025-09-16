@@ -8,7 +8,7 @@ export function DashboardSidebar() {
         <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
           <a href="/" className="flex items-center gap-2 font-semibold">
             <Logo />
-            <span className="">CCTV Manager</span>
+            <span className="">Surveillance Manager <span className="text-gold">PRO</span></span>
           </a>
         </div>
         <div className="flex-1">
