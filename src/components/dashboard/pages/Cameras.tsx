@@ -443,8 +443,8 @@ export function CamerasPage() {
 
   const handlePrintAllStickers = () => {
     const doc = new jsPDF('p', 'mm', 'a4');
-    const stickerWidth = 90; 
-    const stickerHeight = 50; 
+    const stickerWidth = 90;
+    const stickerHeight = 50;
     const marginX = (210 - stickerWidth * 2) / 3;
     const marginY = (297 - stickerHeight * 5) / 6;
     const camerasPerPage = 10;
@@ -466,23 +466,23 @@ export function CamerasPage() {
       doc.setFont('helvetica', 'bold');
       doc.text(camera.name, x + 5, y + 8);
   
-      doc.setFontSize(9);
+      doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
       
-      const lineHeight = 5.5;
+      const lineHeight = 6;
       let currentY = y + 18;
   
-      doc.text(`ID: ${camera.id}`, x + 5, currentY);
-      currentY += lineHeight;
-      doc.text(`IP: ${camera.ipAddress}`, x + 5, currentY);
-      currentY += lineHeight;
-      doc.text(`Location: ${camera.location}`, x + 5, currentY);
-      currentY += lineHeight;
-      doc.text(`Zone: ${camera.zone}`, x + 5, currentY);
-      currentY += lineHeight;
-      doc.text(`NVR: ${camera.nvr} / Ch: ${camera.channel}`, x + 5, currentY);
-      currentY += lineHeight;
-      doc.text(`Switch: ${camera.poeSwitch} / Port: ${camera.port}`, x + 5, currentY);
+      // Left Column
+      const leftColX = x + 5;
+      doc.text(`ID: ${camera.id}`, leftColX, currentY);
+      doc.text(`IP: ${camera.ipAddress}`, leftColX, currentY + lineHeight);
+      doc.text(`Location: ${camera.location}`, leftColX, currentY + lineHeight * 2);
+      
+      // Right Column
+      const rightColX = x + 45;
+      doc.text(`Zone: ${camera.zone}`, rightColX, currentY);
+      doc.text(`NVR: ${camera.nvr} / Ch: ${camera.channel}`, rightColX, currentY + lineHeight);
+      doc.text(`Switch: ${camera.poeSwitch} / Port: ${camera.port}`, rightColX, currentY + lineHeight * 2);
     });
   
     doc.output('dataurlnewwindow');
@@ -619,5 +619,3 @@ export function CamerasPage() {
     </>
   );
 }
-
-    
