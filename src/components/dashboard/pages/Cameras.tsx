@@ -125,7 +125,8 @@ type CameraStatus = 'Online' | 'Offline' | 'Maintenance';
 type Camera = (typeof initialCameras)[number] & { status: CameraStatus };
 
 const zones = ['Zone 1', 'Zone 2', 'Outdoor', 'Unassigned'];
-const nvrs = ['NVR-001', 'NVR-002'];
+const nvrs = [{id: 'NVR-001', channels: 8}, {id: 'NVR-002', channels: 16}];
+const poeSwitches = [{id: 'SW-001', ports: 8}, {id: 'SW-002', ports: 16}];
 
 function CameraForm({
   camera,
@@ -137,6 +138,9 @@ function CameraForm({
   const [open, setOpen] = useState(false);
   const [zone, setZone] = useState(camera?.zone || 'Unassigned');
   const [nvr, setNvr] = useState(camera?.nvr || '');
+  const [poeSwitch, setPoeSwitch] = useState(camera?.poeSwitch || '');
+  const [channel, setChannel] = useState(camera?.channel?.toString() || '');
+  const [port, setPort] = useState(camera?.port?.toString() || '');
 
   const isEditMode = !!camera;
 
@@ -150,13 +154,16 @@ function CameraForm({
       ipAddress: formData.get('ipAddress') as string,
       zone: zone,
       nvr: nvr,
-      channel: parseInt(formData.get('channel') as string, 10),
-      poeSwitch: formData.get('poeSwitch') as string,
-      port: parseInt(formData.get('port') as string, 10),
+      channel: parseInt(channel, 10),
+      poeSwitch: poeSwitch,
+      port: parseInt(port, 10),
     };
     onSave(newCameraData);
     setOpen(false);
   };
+
+  const selectedNvr = nvrs.find(n => n.id === nvr);
+  const selectedPoeSwitch = poeSwitches.find(p => p.id === poeSwitch);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -228,8 +235,8 @@ function CameraForm({
                     </SelectTrigger>
                     <SelectContent>
                       {nvrs.map((nvrItem) => (
-                        <SelectItem key={nvrItem} value={nvrItem}>
-                          {nvrItem}
+                        <SelectItem key={nvrItem.id} value={nvrItem.id}>
+                          {nvrItem.id}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -239,19 +246,52 @@ function CameraForm({
                 <Label htmlFor="channel" className="text-right">
                   Channel
                 </Label>
-                <Input id="channel" name="channel" type="number" defaultValue={camera?.channel} required />
+                <Select name="channel" onValueChange={setChannel} defaultValue={channel} disabled={!selectedNvr}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a channel" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {selectedNvr && Array.from({ length: selectedNvr.channels }, (_, i) => i + 1).map(ch => (
+                        <SelectItem key={ch} value={ch.toString()}>
+                          {ch}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
             </div>
              <div className="grid grid-cols-2 items-center gap-4">
                 <Label htmlFor="poeSwitch" className="text-right">
                   POE Switch
                 </Label>
-                <Input id="poeSwitch" name="poeSwitch" defaultValue={camera?.poeSwitch} required />
+                <Select name="poeSwitch" onValueChange={setPoeSwitch} defaultValue={poeSwitch}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a POE Switch" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {poeSwitches.map((poeSwitchItem) => (
+                        <SelectItem key={poeSwitchItem.id} value={poeSwitchItem.id}>
+                          {poeSwitchItem.id}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
             </div>
             <div className="grid grid-cols-2 items-center gap-4">
                 <Label htmlFor="port" className="text-right">
                   Port
                 </Label>
-                <Input id="port" name="port" type="number" defaultValue={camera?.port} required />
+                 <Select name="port" onValueChange={setPort} defaultValue={port} disabled={!selectedPoeSwitch}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a port" />
+                    </SelectTrigger>
+                    <SelectContent>
+                       {selectedPoeSwitch && Array.from({ length: selectedPoeSwitch.ports }, (_, i) => i + 1).map(p => (
+                        <SelectItem key={p} value={p.toString()}>
+                          {p}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
             </div>
           </div>
           <DialogFooter>
