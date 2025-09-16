@@ -269,10 +269,8 @@ export function CamerasPage() {
               <TableHead>Location</TableHead>
               <TableHead>Zone</TableHead>
               <TableHead>IP Address</TableHead>
-              <TableHead>NVR</TableHead>
-              <TableHead>Channel</TableHead>
-              <TableHead>POE Switch</TableHead>
-              <TableHead>Port</TableHead>
+              <TableHead>NVR / Channel</TableHead>
+              <TableHead>POE Switch / Port</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -306,10 +304,8 @@ export function CamerasPage() {
                 <TableCell>{camera.location}</TableCell>
                 <TableCell>{camera.zone}</TableCell>
                 <TableCell>{camera.ipAddress}</TableCell>
-                <TableCell>{camera.nvr}</TableCell>
-                <TableCell>{camera.channel}</TableCell>
-                <TableCell>{camera.poeSwitch}</TableCell>
-                <TableCell>{camera.port}</TableCell>
+                <TableCell>{camera.nvr} / {camera.channel}</TableCell>
+                <TableCell>{camera.poeSwitch} / {camera.port}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
