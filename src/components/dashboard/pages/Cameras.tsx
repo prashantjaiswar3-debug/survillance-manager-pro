@@ -50,97 +50,37 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import QRCode from 'qrcode';
-
-const initialCameras = [
-  {
-    id: 'CAM-001',
-    name: 'CAM-001',
-    status: 'Online',
-    location: 'Lobby',
-    ipAddress: '192.168.1.10',
-    zone: 'Zone 1',
-    nvr: 'NVR-001',
-    channel: 1,
-    poeSwitch: 'SW-001',
-    port: 1,
-  },
-  {
-    id: 'CAM-002',
-    name: 'CAM-002',
-    status: 'Online',
-    location: 'Office',
-    ipAddress: '192.168.1.11',
-    zone: 'Zone 1',
-    nvr: 'NVR-001',
-    channel: 2,
-    poeSwitch: 'SW-001',
-    port: 2,
-  },
-  {
-    id: 'CAM-003',
-    name: 'CAM-003',
-    status: 'Offline',
-    location: 'Warehouse',
-    ipAddress: '192.168.1.12',
-    zone: 'Zone 2',
-    nvr: 'NVR-001',
-    channel: 3,
-    poeSwitch: 'SW-001',
-    port: 3,
-  },
-  {
-    id: 'CAM-004',
-    name: 'CAM-004',
-    status: 'Online',
-    location: 'Parking Lot',
-    ipAddress: '192.168.1.13',
-    zone: 'Outdoor',
-    nvr: 'NVR-002',
-    channel: 1,
-    poeSwitch: 'SW-002',
-    port: 1,
-  },
-  {
-    id: 'CAM-005',
-    name: 'CAM-005',
-    status: 'Maintenance',
-    location: 'Entrance',
-    ipAddress: '192.168.1.14',
-    zone: 'Zone 1',
-    nvr: 'NVR-002',
-    channel: 2,
-    poeSwitch: 'SW-002',
-    port: 2,
-  },
-  {
-    id: 'CAM-006',
-    name: 'CAM-006',
-    status: 'Online',
-    location: 'Rooftop',
-    ipAddress: '192.168.1.15',
-    zone: 'Outdoor',
-    nvr: 'NVR-002',
-    channel: 3,
-    poeSwitch: 'SW-002',
-    port: 3,
-  },
-];
+import type { NVR } from './NVRs';
+import type { PoeSwitch } from './POESwitch';
 
 type CameraStatus = 'Online' | 'Offline' | 'Maintenance';
-type Camera = (typeof initialCameras)[number] & { status: CameraStatus };
+export type Camera = {
+  id: string;
+  name: string;
+  status: CameraStatus;
+  location: string;
+  ipAddress: string;
+  zone: string;
+  nvr: string;
+  channel: number;
+  poeSwitch: string;
+  port: number;
+};
 
 const zones = ['Zone 1', 'Zone 2', 'Outdoor', 'Unassigned'];
-const nvrs = [{id: 'NVR-001', channels: 8}, {id: 'NVR-002', channels: 16}];
-const poeSwitches = [{id: 'SW-001', ports: 8}, {id: 'SW-002', ports: 16}];
 
 function CameraForm({
   camera,
   onSave,
   allCameras,
+  nvrs,
+  poeSwitches
 }: {
   camera?: Camera;
   onSave: (camera: Omit<Camera, 'id' | 'status'> & { id?: string }) => void;
   allCameras: Camera[];
+  nvrs: NVR[];
+  poeSwitches: PoeSwitch[];
 }) {
   const [open, setOpen] = useState(false);
   const [zone, setZone] = useState(camera?.zone || 'Unassigned');
@@ -375,8 +315,14 @@ function StickerDialog({ camera, open, onOpenChange }: { camera: Camera | null, 
   )
 }
 
-export function CamerasPage() {
-  const [cameras, setCameras] = useState<Camera[]>(initialCameras as Camera[]);
+type CamerasPageProps = {
+  cameras: Camera[];
+  setCameras: React.Dispatch<React.SetStateAction<Camera[]>>;
+  nvrs: NVR[];
+  poeSwitches: PoeSwitch[];
+};
+
+export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasPageProps) {
   const [selectedCamera, setSelectedCamera] = useState<Camera | null>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isStickerOpen, setIsStickerOpen] = useState(false);
@@ -397,7 +343,7 @@ export function CamerasPage() {
     }, 5000); // Toggles a random camera's status every 5 seconds
 
     return () => clearInterval(interval);
-  }, []);
+  }, [setCameras]);
 
   const handleSaveCamera = (cameraData: Omit<Camera, 'id' | 'status'> & { id?: string }) => {
     if (cameraData.id) {
@@ -511,7 +457,7 @@ export function CamerasPage() {
                 Print All Stickers
               </span>
             </Button>
-            <CameraForm onSave={handleSaveCamera} allCameras={cameras} />
+            <CameraForm onSave={handleSaveCamera} allCameras={cameras} nvrs={nvrs} poeSwitches={poeSwitches} />
           </div>
         </CardHeader>
         <CardContent>
@@ -572,7 +518,7 @@ export function CamerasPage() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem onClick={() => handleViewCamera(camera)}>View</DropdownMenuItem>
-                          <CameraForm key={`${camera.id}-edit`} camera={camera} onSave={handleSaveCamera} allCameras={cameras} />
+                          <CameraForm key={`${camera.id}-edit`} camera={camera} onSave={handleSaveCamera} allCameras={cameras} nvrs={nvrs} poeSwitches={poeSwitches} />
                           <DropdownMenuItem onClick={() => handleDeleteCamera(camera.id)}>Delete</DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={() => handlePrintSticker(camera)}>

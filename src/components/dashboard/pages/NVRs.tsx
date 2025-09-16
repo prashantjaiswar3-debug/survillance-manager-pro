@@ -43,27 +43,15 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import QRCode from 'qrcode';
 
-const initialNvrs = [
-  {
-    id: 'NVR-001',
-    name: 'NVR-001',
-    status: 'Online',
-    storage: '8 TB',
-    ipAddress: '192.168.1.100',
-    channels: 8,
-  },
-  {
-    id: 'NVR-002',
-    name: 'NVR-002',
-    status: 'Offline',
-    storage: '16 TB',
-    ipAddress: '192.168.1.101',
-    channels: 16,
-  },
-];
-
 type NvrStatus = 'Online' | 'Offline' | 'Maintenance';
-type NVR = (typeof initialNvrs)[number] & { status: NvrStatus };
+export type NVR = {
+  id: string;
+  name: string;
+  status: NvrStatus;
+  storage: string;
+  ipAddress: string;
+  channels: number;
+};
 
 function NvrForm({
   nvr,
@@ -204,8 +192,12 @@ function NvrForm({
     )
   }
 
-export function NVRsPage() {
-    const [nvrs, setNvrs] = useState<NVR[]>(initialNvrs as NVR[]);
+type NVRsPageProps = {
+    nvrs: NVR[];
+    setNvrs: React.Dispatch<React.SetStateAction<NVR[]>>;
+};
+
+export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
     const [selectedNvr, setSelectedNvr] = useState<NVR | null>(null);
     const [isStickerOpen, setIsStickerOpen] = useState(false);
 
@@ -225,7 +217,7 @@ export function NVRsPage() {
         }, 5000);
     
         return () => clearInterval(interval);
-      }, []);
+      }, [setNvrs]);
 
     const handleSaveNvr = (nvrData: Omit<NVR, 'id' | 'status'> & { id?: string }) => {
         if (nvrData.id) {

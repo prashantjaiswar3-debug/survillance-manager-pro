@@ -43,27 +43,15 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import QRCode from 'qrcode';
 
-const initialPoeSwitches = [
-  {
-    id: 'SW-001',
-    name: 'SW-001',
-    status: 'Online',
-    model: 'UniFi Switch 24 POE',
-    ipAddress: '192.168.1.200',
-    ports: 24,
-  },
-  {
-    id: 'SW-002',
-    name: 'SW-002',
-    status: 'Offline',
-    model: 'UniFi Switch 16 POE',
-    ipAddress: '192.168.1.201',
-    ports: 16,
-  },
-];
-
 type PoeSwitchStatus = 'Online' | 'Offline' | 'Maintenance';
-type PoeSwitch = (typeof initialPoeSwitches)[number] & { status: PoeSwitchStatus };
+export type PoeSwitch = {
+  id: string;
+  name: string;
+  status: PoeSwitchStatus;
+  model: string;
+  ipAddress: string;
+  ports: number;
+};
 
 function PoeSwitchForm({
   poeSwitch,
@@ -204,8 +192,12 @@ function PoeSwitchForm({
     )
   }
 
-export function POESwitchPage() {
-    const [poeSwitches, setPoeSwitches] = useState<PoeSwitch[]>(initialPoeSwitches as PoeSwitch[]);
+type POESwitchPageProps = {
+    poeSwitches: PoeSwitch[];
+    setPoeSwitches: React.Dispatch<React.SetStateAction<PoeSwitch[]>>;
+};
+
+export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProps) {
     const [selectedSwitch, setSelectedSwitch] = useState<PoeSwitch | null>(null);
     const [isStickerOpen, setIsStickerOpen] = useState(false);
 
@@ -225,7 +217,7 @@ export function POESwitchPage() {
         }, 5000);
     
         return () => clearInterval(interval);
-      }, []);
+      }, [setPoeSwitches]);
 
     const handleSavePoeSwitch = (poeSwitchData: Omit<PoeSwitch, 'id' | 'status'> & { id?: string }) => {
         if (poeSwitchData.id) {
