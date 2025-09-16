@@ -65,7 +65,7 @@ const initialCameras: Camera[] = [
   {
     id: 'CAM-005',
     name: 'CAM-005',
-    status: 'Maintenance',
+    status: 'Offline',
     location: 'Entrance',
     ipAddress: '192.168.1.14',
     zone: 'Zone 1',

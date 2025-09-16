@@ -50,7 +50,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-type NvrStatus = 'Online' | 'Offline' | 'Maintenance';
+type NvrStatus = 'Online' | 'Offline';
 export type NVR = {
   id: string;
   name: string;
@@ -314,7 +314,6 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
                   <SelectItem value="All">All Statuses</SelectItem>
                   <SelectItem value="Online">Online</SelectItem>
                   <SelectItem value="Offline">Offline</SelectItem>
-                  <SelectItem value="Maintenance">Maintenance</SelectItem>
                 </SelectContent>
               </Select>
             <Button size="sm" className="h-8 gap-1" onClick={handlePrintAllStickers}>
@@ -351,9 +350,7 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
                           variant={
                             nvr.status === 'Online'
                               ? 'default'
-                              : nvr.status === 'Offline'
-                                ? 'destructive'
-                                : 'secondary'
+                              : 'destructive'
                           }
                         >
                           {nvr.status}

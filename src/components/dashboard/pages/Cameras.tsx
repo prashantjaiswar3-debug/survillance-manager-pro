@@ -53,7 +53,7 @@ import QRCode from 'qrcode';
 import type { NVR } from './NVRs';
 import type { PoeSwitch } from './POESwitch';
 
-type CameraStatus = 'Online' | 'Offline' | 'Maintenance';
+type CameraStatus = 'Online' | 'Offline';
 export type Camera = {
   id: string;
   name: string;
@@ -459,7 +459,6 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
                   <SelectItem value="All">All Statuses</SelectItem>
                   <SelectItem value="Online">Online</SelectItem>
                   <SelectItem value="Offline">Offline</SelectItem>
-                  <SelectItem value="Maintenance">Maintenance</SelectItem>
                 </SelectContent>
               </Select>
             <Button size="sm" className="h-8 gap-1" onClick={handleDownloadPdf}>
@@ -504,9 +503,7 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
                           variant={
                             camera.status === 'Online'
                               ? 'default'
-                              : camera.status === 'Offline'
-                                ? 'destructive'
-                                : 'secondary'
+                              : 'destructive'
                           }
                         >
                           {camera.status}

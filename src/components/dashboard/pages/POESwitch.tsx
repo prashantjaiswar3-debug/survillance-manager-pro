@@ -50,7 +50,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-type PoeSwitchStatus = 'Online' | 'Offline' | 'Maintenance';
+type PoeSwitchStatus = 'Online' | 'Offline';
 export type PoeSwitch = {
   id: string;
   name: string;
@@ -314,7 +314,6 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
                   <SelectItem value="All">All Statuses</SelectItem>
                   <SelectItem value="Online">Online</SelectItem>
                   <SelectItem value="Offline">Offline</SelectItem>
-                  <SelectItem value="Maintenance">Maintenance</SelectItem>
                 </SelectContent>
               </Select>
             <Button size="sm" className="h-8 gap-1" onClick={handlePrintAllStickers}>
@@ -351,9 +350,7 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
                           variant={
                             sw.status === 'Online'
                               ? 'default'
-                              : sw.status === 'Offline'
-                                ? 'destructive'
-                                : 'secondary'
+                              : 'destructive'
                           }
                         >
                           {sw.status}
