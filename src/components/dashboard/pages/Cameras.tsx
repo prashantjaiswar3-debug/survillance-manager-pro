@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Card,
   CardContent,
@@ -24,6 +24,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import {
   Dialog,
@@ -36,7 +37,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MoreHorizontal, PlusCircle, Download } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Download, Printer } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -46,6 +47,9 @@ import {
 } from '@/components/ui/select';
 import Image from 'next/image';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import QRCode from 'qrcode';
 
 const initialCameras = [
   {
@@ -314,11 +318,68 @@ function CameraForm({
   );
 }
 
+function StickerDialog({ camera, open, onOpenChange }: { camera: Camera | null, open: boolean, onOpenChange: (open: boolean) => void }) {
+  const pdfPreviewRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    if (camera && open) {
+      const generateStickerPdf = async () => {
+        const doc = new jsPDF({
+          orientation: 'landscape',
+          unit: 'in',
+          format: [2, 4] // Sticker size: 4 inches width, 2 inches height
+        });
+
+        doc.setFontSize(16);
+        doc.text(camera.name, 0.2, 0.4);
+        doc.setFontSize(10);
+        doc.text(`ID: ${camera.id}`, 0.2, 0.8);
+        doc.text(`IP: ${camera.ipAddress}`, 0.2, 1.0);
+        doc.text(`Location: ${camera.location}`, 0.2, 1.2);
+        doc.text(`Zone: ${camera.zone}`, 0.2, 1.4);
+
+        try {
+          const qrCodeDataUrl = await QRCode.toDataURL(camera.ipAddress, { errorCorrectionLevel: 'H' });
+          doc.addImage(qrCodeDataUrl, 'PNG', 2.5, 0.2, 1.3, 1.3);
+        } catch (err) {
+          console.error(err);
+        }
+
+        if (pdfPreviewRef.current) {
+          pdfPreviewRef.current.src = doc.output('datauristring');
+        }
+      };
+      generateStickerPdf();
+    }
+  }, [camera, open]);
+
+  if (!camera) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-xl">
+        <DialogHeader>
+          <DialogTitle>Print Device Sticker</DialogTitle>
+          <DialogDescription>
+            Sticker for {camera.name}. You can print this sticker from the PDF viewer.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="w-full aspect-[4/2] mt-4">
+          <iframe ref={pdfPreviewRef} className="w-full h-full" title="Sticker Preview" />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
 
 export function CamerasPage() {
   const [cameras, setCameras] = useState<Camera[]>(initialCameras as Camera[]);
   const [selectedCamera, setSelectedCamera] = useState<Camera | null>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isStickerOpen, setIsStickerOpen] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -358,11 +419,14 @@ export function CamerasPage() {
     setIsViewOpen(true);
   }
 
+  const handlePrintSticker = (camera: Camera) => {
+    setSelectedCamera(camera);
+    setIsStickerOpen(true);
+  }
+
   const handleDownloadPdf = async () => {
-    const { default: jsPDF } = await import('jspdf');
-    const { default: autoTable } = await import('jspdf-autotable');
     const doc = new jsPDF();
-    autoTable(doc, {
+    (doc as any).autoTable({
       head: [['Name', 'Status', 'Location', 'Zone', 'IP Address', 'NVR/Channel', 'POE/Port']],
       body: cameras.map(camera => [
         camera.name,
@@ -455,8 +519,13 @@ export function CamerasPage() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem onClick={() => handleViewCamera(camera)}>View</DropdownMenuItem>
-                          <CameraForm key={camera.id} camera={camera} onSave={handleSaveCamera} allCameras={cameras} />
+                          <CameraForm key={`${camera.id}-edit`} camera={camera} onSave={handleSaveCamera} allCameras={cameras} />
                           <DropdownMenuItem onClick={() => handleDeleteCamera(camera.id)}>Delete</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handlePrintSticker(camera)}>
+                            <Printer className="mr-2 h-4 w-4" />
+                            <span>Print Sticker</span>
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -493,6 +562,7 @@ export function CamerasPage() {
           )}
         </DialogContent>
       </Dialog>
+      <StickerDialog camera={selectedCamera} open={isStickerOpen} onOpenChange={setIsStickerOpen} />
     </>
   );
 }
