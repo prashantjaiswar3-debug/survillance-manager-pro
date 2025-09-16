@@ -441,6 +441,46 @@ export function CamerasPage() {
     doc.output('dataurlnewwindow');
   };
 
+  const handlePrintAllStickers = () => {
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const stickerWidth = 95;
+    const stickerHeight = 54;
+    const marginX = (210 - stickerWidth * 2) / 3;
+    const marginY = 10;
+    const camerasPerPage = 10;
+    let cameraIndex = 0;
+
+    cameras.forEach((camera, index) => {
+      const pageIndex = Math.floor(index / camerasPerPage);
+      if (index % camerasPerPage === 0 && pageIndex > 0) {
+        doc.addPage();
+      }
+      cameraIndex = index % camerasPerPage;
+      
+      const x = marginX + (cameraIndex % 2) * (stickerWidth + marginX);
+      const y = marginY + Math.floor(cameraIndex / 2) * (stickerHeight + marginY);
+      
+      doc.setDrawColor(150);
+      doc.roundedRect(x, y, stickerWidth, stickerHeight, 3, 3, 'S');
+
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text(camera.name, x + 5, y + 10);
+
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+
+      doc.text(`ID: ${camera.id}`, x + 5, y + 18);
+      doc.text(`IP: ${camera.ipAddress}`, x + 5, y + 24);
+      doc.text(`Location: ${camera.location}`, x + 5, y + 30);
+      doc.text(`Zone: ${camera.zone}`, x + 5, y + 36);
+      doc.text(`NVR: ${camera.nvr} / Ch: ${camera.channel}`, x + 5, y + 42);
+      doc.text(`Switch: ${camera.poeSwitch} / Port: ${camera.port}`, x + 5, y + 48);
+    });
+
+    doc.output('dataurlnewwindow');
+  };
+
   return (
     <>
       <Card>
@@ -456,6 +496,12 @@ export function CamerasPage() {
               <Download className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
                 View PDF
+              </span>
+            </Button>
+            <Button size="sm" className="h-8 gap-1" onClick={handlePrintAllStickers}>
+              <Printer className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                Print All Stickers
               </span>
             </Button>
             <CameraForm onSave={handleSaveCamera} allCameras={cameras} />
@@ -566,3 +612,5 @@ export function CamerasPage() {
     </>
   );
 }
+
+    
