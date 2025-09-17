@@ -40,4 +40,13 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withPWA(nextConfig);
+const applyPwa = (config: NextConfig) => {
+    // The `withPWA` wrapper is not compatible with Turbopack.
+    // We only enable it when not running with Turbopack.
+    if (process.env.TURBOPACK) {
+        return config;
+    }
+    return withPWA(config);
+}
+
+export default applyPwa(nextConfig);
