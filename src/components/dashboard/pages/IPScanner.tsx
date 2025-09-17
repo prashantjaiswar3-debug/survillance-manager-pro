@@ -38,9 +38,8 @@ export function IPScannerPage({ cameras, nvrs, poeSwitches }: IPScannerPageProps
         const ips = new Map<string, { type: string, name: string }>();
         cameras.forEach(c => ips.set(c.ipAddress, { type: 'Camera', name: c.name }));
         nvrs.forEach(n => ips.set(n.ipAddress, { type: 'NVR', name: n.name }));
-        poeSwitches.forEach(s => ips.set(s.ipAddress, { type: 'POE Switch', name: s.name }));
         return ips;
-    }, [cameras, nvrs, poeSwitches]);
+    }, [cameras, nvrs]);
 
     const ipList = useMemo(() => {
         if (!isValidIp(ipRangeStart) || !isValidIp(ipRangeEnd)) return [];

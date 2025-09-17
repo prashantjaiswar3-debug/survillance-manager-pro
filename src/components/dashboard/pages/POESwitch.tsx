@@ -65,7 +65,7 @@ function PoeSwitchForm({
   onSave,
 }: {
   poeSwitch?: PoeSwitch;
-  onSave: (poeSwitch: Omit<PoeSwitch, 'id' | 'status'> & { id?: string }) => void;
+  onSave: (poeSwitch: Omit<PoeSwitch, 'id' | 'status' | 'ipAddress'> & { id?: string }) => void;
 }) {
     const [open, setOpen] = useState(false);
 
@@ -78,7 +78,6 @@ function PoeSwitchForm({
         id: poeSwitch?.id,
         name: formData.get('name') as string,
         model: formData.get('model') as string,
-        ipAddress: formData.get('ipAddress') as string,
         ports: parseInt(formData.get('ports') as string, 10),
       };
       onSave(poeSwitchData);
@@ -121,12 +120,6 @@ function PoeSwitchForm({
                 <Input id="model" name="model" defaultValue={poeSwitch?.model} className="col-span-3" required />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="ipAddress" className="text-right">
-                  IP Address
-                </Label>
-                <Input id="ipAddress" name="ipAddress" defaultValue={poeSwitch?.ipAddress} className="col-span-3" required />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="ports" className="text-right">
                   Ports
                 </Label>
@@ -158,12 +151,11 @@ function PoeSwitchForm({
           doc.text(device.name, 0.2, 0.4);
           doc.setFontSize(10);
           doc.text(`ID: ${device.id}`, 0.2, 0.8);
-          doc.text(`IP: ${device.ipAddress}`, 0.2, 1.0);
-          doc.text(`Model: ${device.model}`, 0.2, 1.2);
-          doc.text(`Ports: ${device.ports}`, 0.2, 1.4);
+          doc.text(`Model: ${device.model}`, 0.2, 1.0);
+          doc.text(`Ports: ${device.ports}`, 0.2, 1.2);
   
           try {
-            const qrCodeDataUrl = await QRCode.toDataURL(device.ipAddress, { errorCorrectionLevel: 'H' });
+            const qrCodeDataUrl = await QRCode.toDataURL(device.id, { errorCorrectionLevel: 'H' });
             doc.addImage(qrCodeDataUrl, 'PNG', 2.5, 0.2, 1.3, 1.3);
           } catch (err) {
             console.error(err);
@@ -232,11 +224,11 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
         return sw.status === statusFilter;
     });
 
-    const handleSavePoeSwitch = (poeSwitchData: Omit<PoeSwitch, 'id' | 'status'> & { id?: string }) => {
+    const handleSavePoeSwitch = (poeSwitchData: Omit<PoeSwitch, 'id' | 'status' | 'ipAddress'> & { id?: string }) => {
         if (poeSwitchData.id) {
             setPoeSwitches(poeSwitches.map(s => s.id === poeSwitchData.id ? { ...s, ...poeSwitchData } as PoeSwitch : s));
         } else {
-            const newPoeSwitch = { ...poeSwitchData, id: `SW-${Date.now()}`, status: 'Offline' as const };
+            const newPoeSwitch = { ...poeSwitchData, id: `SW-${Date.now()}`, status: 'Offline' as const, ipAddress: '' };
             setPoeSwitches((prev) => [...prev, newPoeSwitch]);
         }
     };
@@ -281,15 +273,9 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
         const lineHeight = 6;
         let currentY = y + 18;
     
-        // Left Column
-        const leftColX = x + 5;
-        doc.text(`ID: ${device.id}`, leftColX, currentY);
-        doc.text(`IP: ${device.ipAddress}`, leftColX, currentY + lineHeight);
-        
-        // Right Column
-        const rightColX = x + 45;
-        doc.text(`Model: ${device.model}`, rightColX, currentY);
-        doc.text(`Ports: ${device.ports}`, rightColX, currentY + lineHeight);
+        doc.text(`ID: ${device.id}`, x + 5, currentY);
+        doc.text(`Model: ${device.model}`, x + 5, currentY + lineHeight);
+        doc.text(`Ports: ${device.ports}`, x + 5, currentY + lineHeight * 2);
       });
     
       doc.output('dataurlnewwindow');
@@ -333,7 +319,6 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
                   <TableHead>Name</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Model</TableHead>
-                  <TableHead>IP Address</TableHead>
                   <TableHead>Ports</TableHead>
                   <TableHead>
                     <span className="sr-only">Actions</span>
@@ -364,7 +349,6 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
                       </div>
                     </TableCell>
                     <TableCell>{sw.model}</TableCell>
-                    <TableCell>{sw.ipAddress}</TableCell>
                     <TableCell>{sw.ports}</TableCell>
                     <TableCell>
                         <DropdownMenu>

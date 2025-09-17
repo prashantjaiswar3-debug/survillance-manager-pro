@@ -107,13 +107,12 @@ const initialNvrs: NVR[] = [
   },
 ];
 
-const initialPoeSwitches: PoeSwitch[] = [
+const initialPoeSwitches: Omit<PoeSwitch, 'ipAddress'>[] = [
   {
     id: 'SW-001',
     name: 'SW-001',
     status: 'Online',
     model: 'UniFi Switch 24 POE',
-    ipAddress: '192.168.1.200',
     ports: 24,
   },
   {
@@ -121,7 +120,6 @@ const initialPoeSwitches: PoeSwitch[] = [
     name: 'SW-002',
     status: 'Offline',
     model: 'UniFi Switch 16 POE',
-    ipAddress: '192.168.1.201',
     ports: 16,
   },
 ];
@@ -130,7 +128,7 @@ export default function Home() {
   const [activePage, setActivePage] = useState<MenuItem>('Cameras');
   const [cameras, setCameras] = useState<Camera[]>(initialCameras);
   const [nvrs, setNvrs] = useState<NVR[]>(initialNvrs);
-  const [poeSwitches, setPoeSwitches] = useState<PoeSwitch[]>(initialPoeSwitches);
+  const [poeSwitches, setPoeSwitches] = useState<PoeSwitch[]>(initialPoeSwitches.map(p => ({...p, ipAddress: ''})));
 
   const renderPage = () => {
     switch (activePage) {
