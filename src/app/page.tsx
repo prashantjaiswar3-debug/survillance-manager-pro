@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { DashboardHorizontalNav } from '@/components/dashboard/DashboardHorizontalNav';
 import { CamerasPage, type Camera } from '@/components/dashboard/pages/Cameras';
@@ -130,6 +130,34 @@ export default function Home() {
   const [cameras, setCameras] = useLocalStorageState<Camera[]>('cameras', initialCameras);
   const [nvrs, setNvrs] = useLocalStorageState<NVR[]>('nvrs', initialNvrs);
   const [poeSwitches, setPoeSwitches] = useLocalStorageState<PoeSwitch[]>('poeSwitches', initialPoeSwitches);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Simulate status changes for cameras
+      setCameras(prevCameras =>
+        prevCameras.map(camera => ({
+          ...camera,
+          status: Math.random() > 0.3 ? 'Online' : 'Offline',
+        }))
+      );
+      // Simulate status changes for NVRs
+      setNvrs(prevNvrs =>
+        prevNvrs.map(nvr => ({
+          ...nvr,
+          status: Math.random() > 0.4 ? 'Online' : 'Offline',
+        }))
+      );
+      // Simulate status changes for POE switches
+      setPoeSwitches(prevPoeSwitches =>
+        prevPoeSwitches.map(sw => ({
+          ...sw,
+          status: Math.random() > 0.2 ? 'Online' : 'Offline',
+        }))
+      );
+    }, 5000); // Update every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [setCameras, setNvrs, setPoeSwitches]);
 
   const renderPage = () => {
     switch (activePage) {
