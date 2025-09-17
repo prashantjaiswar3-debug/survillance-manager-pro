@@ -208,8 +208,16 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
     const [selectedNvr, setSelectedNvr] = useState<NVR | null>(null);
     const [isStickerOpen, setIsStickerOpen] = useState(false);
     const [statusFilter, setStatusFilter] = useState('All');
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    useEffect(() => {
+        if (!isClient) {
+            return;
+        }
         const interval = setInterval(() => {
           setNvrs(prevNvrs => {
             if (prevNvrs.length === 0) return prevNvrs;
@@ -225,7 +233,7 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
         }, 5000);
     
         return () => clearInterval(interval);
-      }, [setNvrs]);
+      }, [setNvrs, isClient]);
 
     const filteredNvrs = nvrs.filter(nvr => {
         if (statusFilter === 'All') return true;

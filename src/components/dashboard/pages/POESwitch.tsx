@@ -56,7 +56,6 @@ export type PoeSwitch = {
   name: string;
   status: PoeSwitchStatus;
   model: string;
-  ipAddress: string;
   ports: number;
 };
 
@@ -65,7 +64,7 @@ function PoeSwitchForm({
   onSave,
 }: {
   poeSwitch?: PoeSwitch;
-  onSave: (poeSwitch: Omit<PoeSwitch, 'id' | 'status' | 'ipAddress'> & { id?: string }) => void;
+  onSave: (poeSwitch: Omit<PoeSwitch, 'id' | 'status'> & { id?: string }) => void;
 }) {
     const [open, setOpen] = useState(false);
 
@@ -200,8 +199,16 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
     const [selectedSwitch, setSelectedSwitch] = useState<PoeSwitch | null>(null);
     const [isStickerOpen, setIsStickerOpen] = useState(false);
     const [statusFilter, setStatusFilter] = useState('All');
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
+      setIsClient(true);
+    }, []);
+
+    useEffect(() => {
+        if (!isClient) {
+          return;
+        }
         const interval = setInterval(() => {
           setPoeSwitches(prevPoeSwitches => {
             if (prevPoeSwitches.length === 0) return prevPoeSwitches;
@@ -217,18 +224,18 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
         }, 5000);
     
         return () => clearInterval(interval);
-      }, [setPoeSwitches]);
+      }, [setPoeSwitches, isClient]);
 
     const filteredPoeSwitches = poeSwitches.filter(sw => {
         if (statusFilter === 'All') return true;
         return sw.status === statusFilter;
     });
 
-    const handleSavePoeSwitch = (poeSwitchData: Omit<PoeSwitch, 'id' | 'status' | 'ipAddress'> & { id?: string }) => {
+    const handleSavePoeSwitch = (poeSwitchData: Omit<PoeSwitch, 'id' | 'status'> & { id?: string }) => {
         if (poeSwitchData.id) {
             setPoeSwitches(poeSwitches.map(s => s.id === poeSwitchData.id ? { ...s, ...poeSwitchData } as PoeSwitch : s));
         } else {
-            const newPoeSwitch = { ...poeSwitchData, id: `SW-${Date.now()}`, status: 'Offline' as const, ipAddress: '' };
+            const newPoeSwitch = { ...poeSwitchData, id: `SW-${Date.now()}`, status: 'Offline' as const };
             setPoeSwitches((prev) => [...prev, newPoeSwitch]);
         }
     };

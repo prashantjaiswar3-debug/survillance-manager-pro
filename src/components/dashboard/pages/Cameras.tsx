@@ -45,7 +45,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import Image from 'next/image';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -327,8 +326,16 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isStickerOpen, setIsStickerOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState('All');
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) {
+      return;
+    }
     const interval = setInterval(() => {
       setCameras(prevCameras => {
         if (prevCameras.length === 0) return prevCameras;
@@ -344,7 +351,7 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
     }, 5000); // Toggles a random camera's status every 5 seconds
 
     return () => clearInterval(interval);
-  }, [setCameras]);
+  }, [setCameras, isClient]);
   
   const filteredCameras = cameras.filter(camera => {
     if (statusFilter === 'All') return true;
