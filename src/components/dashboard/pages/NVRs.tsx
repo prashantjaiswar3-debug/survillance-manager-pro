@@ -214,21 +214,6 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
         setIsClient(true);
     }, []);
 
-    useEffect(() => {
-      if (!isClient) return;
-  
-      const interval = setInterval(() => {
-        setNvrs(prevNvrs => 
-          prevNvrs.map(nvr => ({
-            ...nvr,
-            status: Math.random() > 0.3 ? 'Online' : 'Offline'
-          }))
-        );
-      }, 5000); // Update every 5 seconds
-  
-      return () => clearInterval(interval);
-    }, [isClient, setNvrs]);
-
     const filteredNvrs = nvrs.filter(nvr => {
         if (statusFilter === 'All') return true;
         return nvr.status === statusFilter;

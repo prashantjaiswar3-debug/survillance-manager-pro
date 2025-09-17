@@ -332,21 +332,6 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
     setIsClient(true);
   }, []);
 
-  useEffect(() => {
-    if (!isClient) return;
-
-    const interval = setInterval(() => {
-      setCameras(prevCameras => 
-        prevCameras.map(camera => ({
-          ...camera,
-          status: Math.random() > 0.3 ? 'Online' : 'Offline'
-        }))
-      );
-    }, 5000); // Update every 5 seconds
-
-    return () => clearInterval(interval);
-  }, [isClient, setCameras]);
-  
   const filteredCameras = cameras.filter(camera => {
     if (statusFilter === 'All') return true;
     return camera.status === statusFilter;

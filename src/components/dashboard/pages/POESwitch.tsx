@@ -205,21 +205,6 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
       setIsClient(true);
     }, []);
 
-    useEffect(() => {
-      if (!isClient) return;
-  
-      const interval = setInterval(() => {
-        setPoeSwitches(prevSwitches => 
-          prevSwitches.map(sw => ({
-            ...sw,
-            status: Math.random() > 0.3 ? 'Online' : 'Offline'
-          }))
-        );
-      }, 5000); // Update every 5 seconds
-  
-      return () => clearInterval(interval);
-    }, [isClient, setPoeSwitches]);
-
     const filteredPoeSwitches = poeSwitches.filter(sw => {
         if (statusFilter === 'All') return true;
         return sw.status === statusFilter;
