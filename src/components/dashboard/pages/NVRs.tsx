@@ -65,9 +65,10 @@ function NvrForm({
   onSave,
 }: {
   nvr?: NVR;
-  onSave: (nvr: Omit<NVR, 'id' | 'status'> & { id?: string }) => void;
+  onSave: (nvr: Omit<NVR, 'id'> & { id?: string }) => void;
 }) {
     const [open, setOpen] = useState(false);
+    const [status, setStatus] = useState<NvrStatus>(nvr?.status || 'Offline');
 
     const isEditMode = !!nvr;
   
@@ -80,6 +81,7 @@ function NvrForm({
         storage: formData.get('storage') as string,
         ipAddress: formData.get('ipAddress') as string,
         channels: parseInt(formData.get('channels') as string, 10),
+        status: status,
       };
       onSave(nvrData);
       setOpen(false);
@@ -113,6 +115,20 @@ function NvrForm({
                   Name
                 </Label>
                 <Input id="name" name="name" defaultValue={nvr?.name} className="col-span-3" required />
+              </div>
+               <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="status" className="text-right">
+                  Status
+                </Label>
+                <Select name="status" onValueChange={(value) => setStatus(value as NvrStatus)} defaultValue={status}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select a status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Online">Online</SelectItem>
+                    <SelectItem value="Offline">Offline</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="storage" className="text-right">
@@ -219,12 +235,12 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
         return nvr.status === statusFilter;
     });
 
-    const handleSaveNvr = (nvrData: Omit<NVR, 'id' | 'status'> & { id?: string }) => {
+    const handleSaveNvr = (nvrData: Omit<NVR, 'id'> & { id?: string }) => {
         if (nvrData.id) {
             setNvrs(nvrs.map(n => n.id === nvrData.id ? { ...n, ...nvrData } as NVR : n));
         } else {
-            const newNvr = { ...nvrData, id: `NVR-${Date.now()}`, status: 'Offline' as const };
-            setNvrs((prevNvrs) => [...prevNvrs, newNvr]);
+            const newNvr = { ...nvrData, id: `NVR-${Date.now()}` };
+            setNvrs((prevNvrs) => [...prevNvrs, newNvr as NVR]);
         }
     };
 

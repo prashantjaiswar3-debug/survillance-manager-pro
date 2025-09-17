@@ -37,7 +37,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MoreHorizontal, PlusCircle, Download, Printer, Camera as CameraIcon, Wifi } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Download, Printer, Camera as CameraIcon } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -76,7 +76,7 @@ function CameraForm({
   poeSwitches
 }: {
   camera?: Camera;
-  onSave: (camera: Omit<Camera, 'id' | 'status'> & { id?: string }) => void;
+  onSave: (camera: Omit<Camera, 'id'> & { id?: string }) => void;
   allCameras: Camera[];
   nvrs: NVR[];
   poeSwitches: PoeSwitch[];
@@ -87,6 +87,7 @@ function CameraForm({
   const [poeSwitch, setPoeSwitch] = useState(camera?.poeSwitch || '');
   const [channel, setChannel] = useState(camera?.channel?.toString() || '');
   const [port, setPort] = useState(camera?.port?.toString() || '');
+  const [status, setStatus] = useState<CameraStatus>(camera?.status || 'Offline');
 
   const isEditMode = !!camera;
 
@@ -103,6 +104,7 @@ function CameraForm({
       channel: parseInt(channel, 10),
       poeSwitch: poeSwitch,
       port: parseInt(port, 10),
+      status: status,
     };
     onSave(newCameraData);
     setOpen(false);
@@ -162,8 +164,22 @@ function CameraForm({
               </Label>
               <Input id="ipAddress" name="ipAddress" defaultValue={camera?.ipAddress} className="col-span-3" required />
             </div>
-             <div className="grid grid-cols-4 items-center gap-4 col-span-2">
-              <Label htmlFor="zone" className="text-right col-span-1">
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="status" className="text-right">
+                  Status
+                </Label>
+                <Select name="status" onValueChange={(value) => setStatus(value as CameraStatus)} defaultValue={status}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select a status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Online">Online</SelectItem>
+                    <SelectItem value="Offline">Offline</SelectItem>
+                  </SelectContent>
+                </Select>
+            </div>
+             <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="zone" className="text-right">
                 Zone
               </Label>
               <Select name="zone" onValueChange={setZone} defaultValue={zone}>
@@ -337,14 +353,14 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
     return camera.status === statusFilter;
   });
 
-  const handleSaveCamera = (cameraData: Omit<Camera, 'id' | 'status'> & { id?: string }) => {
+  const handleSaveCamera = (cameraData: Omit<Camera, 'id'> & { id?: string }) => {
     if (cameraData.id) {
       // Edit
       setCameras(cameras.map(c => c.id === cameraData.id ? { ...c, ...cameraData } as Camera : c));
     } else {
       // Add
-      const newCamera = { ...cameraData, id: `CAM-${Date.now()}`, status: 'Offline' as const };
-      setCameras(prevCameras => [...prevCameras, newCamera]);
+      const newCamera = { ...cameraData, id: `CAM-${Date.now()}` };
+      setCameras(prevCameras => [...prevCameras, newCamera as Camera]);
     }
   };
 

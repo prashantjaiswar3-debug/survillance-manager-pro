@@ -64,9 +64,10 @@ function PoeSwitchForm({
   onSave,
 }: {
   poeSwitch?: PoeSwitch;
-  onSave: (poeSwitch: Omit<PoeSwitch, 'id' | 'status'> & { id?: string }) => void;
+  onSave: (poeSwitch: Omit<PoeSwitch, 'id'> & { id?: string }) => void;
 }) {
     const [open, setOpen] = useState(false);
+    const [status, setStatus] = useState<PoeSwitchStatus>(poeSwitch?.status || 'Offline');
 
     const isEditMode = !!poeSwitch;
   
@@ -78,6 +79,7 @@ function PoeSwitchForm({
         name: formData.get('name') as string,
         model: formData.get('model') as string,
         ports: parseInt(formData.get('ports') as string, 10),
+        status: status,
       };
       onSave(poeSwitchData);
       setOpen(false);
@@ -111,6 +113,20 @@ function PoeSwitchForm({
                   Name
                 </Label>
                 <Input id="name" name="name" defaultValue={poeSwitch?.name} className="col-span-3" required />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="status" className="text-right">
+                  Status
+                </Label>
+                <Select name="status" onValueChange={(value) => setStatus(value as PoeSwitchStatus)} defaultValue={status}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select a status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Online">Online</SelectItem>
+                    <SelectItem value="Offline">Offline</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="model" className="text-right">
@@ -210,12 +226,12 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
         return sw.status === statusFilter;
     });
 
-    const handleSavePoeSwitch = (poeSwitchData: Omit<PoeSwitch, 'id' | 'status'> & { id?: string }) => {
+    const handleSavePoeSwitch = (poeSwitchData: Omit<PoeSwitch, 'id'> & { id?: string }) => {
         if (poeSwitchData.id) {
             setPoeSwitches(poeSwitches.map(s => s.id === poeSwitchData.id ? { ...s, ...poeSwitchData } as PoeSwitch : s));
         } else {
-            const newPoeSwitch = { ...poeSwitchData, id: `SW-${Date.now()}`, status: 'Offline' as const };
-            setPoeSwitches((prev) => [...prev, newPoeSwitch]);
+            const newPoeSwitch = { ...poeSwitchData, id: `SW-${Date.now()}` };
+            setPoeSwitches((prev) => [...prev, newPoeSwitch as PoeSwitch]);
         }
     };
 
