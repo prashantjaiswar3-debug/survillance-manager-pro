@@ -485,6 +485,7 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[calc(100vh-250px)]">
+            {isClient && (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -553,6 +554,7 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
                 ))}
               </TableBody>
             </Table>
+            )}
           </ScrollArea>
         </CardContent>
       </Card>

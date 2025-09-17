@@ -320,6 +320,7 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[calc(100vh-250px)]">
+            {isClient && (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -381,6 +382,7 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
                 ))}
               </TableBody>
             </Table>
+            )}
           </ScrollArea>
         </CardContent>
       </Card>

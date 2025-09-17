@@ -335,6 +335,7 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[calc(100vh-250px)]">
+            {isClient && (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -398,6 +399,7 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
                 ))}
               </TableBody>
             </Table>
+            )}
           </ScrollArea>
         </CardContent>
       </Card>
