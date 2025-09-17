@@ -37,7 +37,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MoreHorizontal, PlusCircle, Printer } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Printer, Wifi } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -200,31 +200,29 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
     const [isStickerOpen, setIsStickerOpen] = useState(false);
     const [statusFilter, setStatusFilter] = useState('All');
     const [isClient, setIsClient] = useState(false);
+    const [pinging, setPinging] = useState<string[]>([]);
 
     useEffect(() => {
       setIsClient(true);
     }, []);
 
-    useEffect(() => {
-        if (!isClient) {
-          return;
-        }
-        const interval = setInterval(() => {
-          setPoeSwitches(prevPoeSwitches => {
-            if (prevPoeSwitches.length === 0) return prevPoeSwitches;
-            const randomIndex = Math.floor(Math.random() * prevPoeSwitches.length);
-            return prevPoeSwitches.map((sw, index) => {
-              if (index === randomIndex) {
-                const newStatus = sw.status === 'Online' ? 'Offline' : 'Online';
-                return { ...sw, status: newStatus as PoeSwitchStatus };
-              }
-              return sw;
-            });
-          });
-        }, 5000);
-    
-        return () => clearInterval(interval);
-      }, [setPoeSwitches, isClient]);
+    const handlePing = (id: string) => {
+      setPinging(prev => [...prev, id]);
+      setTimeout(() => {
+        setPoeSwitches(prevSwitches => 
+          prevSwitches.map(sw => 
+            sw.id === id 
+              ? { ...sw, status: Math.random() > 0.3 ? 'Online' : 'Offline' } 
+              : sw
+          )
+        );
+        setPinging(prev => prev.filter(pingId => pingId !== id));
+      }, 1000 + Math.random() * 1000);
+    };
+
+    const handlePingAll = () => {
+      poeSwitches.forEach(sw => handlePing(sw.id));
+    };
 
     const filteredPoeSwitches = poeSwitches.filter(sw => {
         if (statusFilter === 'All') return true;
@@ -309,6 +307,12 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
                   <SelectItem value="Offline">Offline</SelectItem>
                 </SelectContent>
               </Select>
+            <Button size="sm" className="h-8 gap-1" onClick={handlePingAll}>
+                <Wifi className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Ping All
+                </span>
+            </Button>
             <Button size="sm" className="h-8 gap-1" onClick={handlePrintAllStickers}>
                 <Printer className="h-3.5 w-3.5" />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
@@ -346,9 +350,9 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
                               : 'destructive'
                           }
                         >
-                          {sw.status}
+                          {pinging.includes(sw.id) ? 'Pinging...' : sw.status}
                         </Badge>
-                         {sw.status === 'Online' && (
+                         {sw.status === 'Online' && !pinging.includes(sw.id) && (
                           <span className="relative flex h-3 w-3">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
@@ -368,6 +372,10 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => handlePing(sw.id)}>
+                                <Wifi className="mr-2 h-4 w-4" />
+                                <span>Ping</span>
+                              </DropdownMenuItem>
                             <PoeSwitchForm key={sw.id} poeSwitch={sw} onSave={handleSavePoeSwitch} />
                             <DropdownMenuItem onClick={() => handleDeletePoeSwitch(sw.id)}>Delete</DropdownMenuItem>
                             <DropdownMenuSeparator />

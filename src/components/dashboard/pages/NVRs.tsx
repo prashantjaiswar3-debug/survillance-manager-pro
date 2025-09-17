@@ -37,7 +37,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MoreHorizontal, PlusCircle, Printer } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Printer, Wifi } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -209,31 +209,29 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
     const [isStickerOpen, setIsStickerOpen] = useState(false);
     const [statusFilter, setStatusFilter] = useState('All');
     const [isClient, setIsClient] = useState(false);
+    const [pinging, setPinging] = useState<string[]>([]);
 
     useEffect(() => {
         setIsClient(true);
     }, []);
 
-    useEffect(() => {
-        if (!isClient) {
-            return;
-        }
-        const interval = setInterval(() => {
-          setNvrs(prevNvrs => {
-            if (prevNvrs.length === 0) return prevNvrs;
-            const randomIndex = Math.floor(Math.random() * prevNvrs.length);
-            return prevNvrs.map((nvr, index) => {
-              if (index === randomIndex) {
-                const newStatus = nvr.status === 'Online' ? 'Offline' : 'Online';
-                return { ...nvr, status: newStatus as NvrStatus };
-              }
-              return nvr;
-            });
-          });
-        }, 5000);
-    
-        return () => clearInterval(interval);
-      }, [setNvrs, isClient]);
+    const handlePing = (id: string) => {
+      setPinging(prev => [...prev, id]);
+      setTimeout(() => {
+        setNvrs(prevNvrs => 
+          prevNvrs.map(nvr => 
+            nvr.id === id 
+              ? { ...nvr, status: Math.random() > 0.3 ? 'Online' : 'Offline' } 
+              : nvr
+          )
+        );
+        setPinging(prev => prev.filter(pingId => pingId !== id));
+      }, 1000 + Math.random() * 1000);
+    };
+
+    const handlePingAll = () => {
+      nvrs.forEach(nvr => handlePing(nvr.id));
+    };
 
     const filteredNvrs = nvrs.filter(nvr => {
         if (statusFilter === 'All') return true;
@@ -324,6 +322,12 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
                   <SelectItem value="Offline">Offline</SelectItem>
                 </SelectContent>
               </Select>
+            <Button size="sm" className="h-8 gap-1" onClick={handlePingAll}>
+              <Wifi className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                Ping All
+              </span>
+            </Button>
             <Button size="sm" className="h-8 gap-1" onClick={handlePrintAllStickers}>
               <Printer className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
@@ -362,9 +366,9 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
                               : 'destructive'
                           }
                         >
-                          {nvr.status}
+                          {pinging.includes(nvr.id) ? 'Pinging...' : nvr.status}
                         </Badge>
-                         {nvr.status === 'Online' && (
+                         {nvr.status === 'Online' && !pinging.includes(nvr.id) && (
                           <span className="relative flex h-3 w-3">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
@@ -385,6 +389,10 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                             <DropdownMenuItem onClick={() => handlePing(nvr.id)}>
+                                <Wifi className="mr-2 h-4 w-4" />
+                                <span>Ping</span>
+                              </DropdownMenuItem>
                             <NvrForm key={nvr.id} nvr={nvr} onSave={handleSaveNvr} />
                             <DropdownMenuItem onClick={() => handleDeleteNvr(nvr.id)}>Delete</DropdownMenuItem>
                             <DropdownMenuSeparator />

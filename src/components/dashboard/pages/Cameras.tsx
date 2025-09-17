@@ -37,7 +37,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MoreHorizontal, PlusCircle, Download, Printer, Camera as CameraIcon } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Download, Printer, Camera as CameraIcon, Wifi } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -327,31 +327,29 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
   const [isStickerOpen, setIsStickerOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState('All');
   const [isClient, setIsClient] = useState(false);
+  const [pinging, setPinging] = useState<string[]>([]);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  useEffect(() => {
-    if (!isClient) {
-      return;
-    }
-    const interval = setInterval(() => {
-      setCameras(prevCameras => {
-        if (prevCameras.length === 0) return prevCameras;
-        const randomIndex = Math.floor(Math.random() * prevCameras.length);
-        return prevCameras.map((camera, index) => {
-          if (index === randomIndex) {
-            const newStatus = camera.status === 'Online' ? 'Offline' : 'Online';
-            return { ...camera, status: newStatus as CameraStatus };
-          }
-          return camera;
-        });
-      });
-    }, 5000); // Toggles a random camera's status every 5 seconds
+  const handlePing = (id: string) => {
+    setPinging(prev => [...prev, id]);
+    setTimeout(() => {
+      setCameras(prevCameras => 
+        prevCameras.map(camera => 
+          camera.id === id 
+            ? { ...camera, status: Math.random() > 0.3 ? 'Online' : 'Offline' } 
+            : camera
+        )
+      );
+      setPinging(prev => prev.filter(pingId => pingId !== id));
+    }, 1000 + Math.random() * 1000);
+  };
 
-    return () => clearInterval(interval);
-  }, [setCameras, isClient]);
+  const handlePingAll = () => {
+    cameras.forEach(camera => handlePing(camera.id));
+  };
   
   const filteredCameras = cameras.filter(camera => {
     if (statusFilter === 'All') return true;
@@ -468,6 +466,12 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
                   <SelectItem value="Offline">Offline</SelectItem>
                 </SelectContent>
               </Select>
+            <Button size="sm" className="h-8 gap-1" onClick={handlePingAll}>
+              <Wifi className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                Ping All
+              </span>
+            </Button>
             <Button size="sm" className="h-8 gap-1" onClick={handleDownloadPdf}>
               <Download className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
@@ -514,9 +518,9 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
                               : 'destructive'
                           }
                         >
-                          {camera.status}
+                          {pinging.includes(camera.id) ? 'Pinging...' : camera.status}
                         </Badge>
-                        {camera.status === 'Online' && (
+                        {camera.status === 'Online' && !pinging.includes(camera.id) && (
                           <span className="relative flex h-3 w-3">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
@@ -539,6 +543,10 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handlePing(camera.id)}>
+                            <Wifi className="mr-2 h-4 w-4" />
+                            <span>Ping</span>
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleViewCamera(camera)}>View</DropdownMenuItem>
                           <CameraForm key={`${camera.id}-edit`} camera={camera} onSave={handleSaveCamera} allCameras={cameras} nvrs={nvrs} poeSwitches={poeSwitches} />
                           <DropdownMenuItem onClick={() => handleDeleteCamera(camera.id)}>Delete</DropdownMenuItem>
