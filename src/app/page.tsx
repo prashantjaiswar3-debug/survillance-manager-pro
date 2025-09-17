@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { DashboardHorizontalNav } from '@/components/dashboard/DashboardHorizontalNav';
 import { CamerasPage, type Camera } from '@/components/dashboard/pages/Cameras';
@@ -10,6 +10,7 @@ import { TodoPage } from '@/components/dashboard/pages/Todo';
 import { IPScannerPage } from '@/components/dashboard/pages/IPScanner';
 import { ZonesPage } from '@/components/dashboard/pages/Zones';
 import { menuItems } from '@/components/dashboard/DashboardHorizontalNav';
+import useLocalStorageState from '@/hooks/use-local-storage-state';
 
 type MenuItem = (typeof menuItems)[number];
 
@@ -107,7 +108,7 @@ const initialNvrs: NVR[] = [
   },
 ];
 
-const initialPoeSwitches: Omit<PoeSwitch, 'ipAddress'>[] = [
+const initialPoeSwitches: PoeSwitch[] = [
   {
     id: 'SW-001',
     name: 'SW-001',
@@ -126,9 +127,9 @@ const initialPoeSwitches: Omit<PoeSwitch, 'ipAddress'>[] = [
 
 export default function Home() {
   const [activePage, setActivePage] = useState<MenuItem>('Cameras');
-  const [cameras, setCameras] = useState<Camera[]>(initialCameras);
-  const [nvrs, setNvrs] = useState<NVR[]>(initialNvrs);
-  const [poeSwitches, setPoeSwitches] = useState<PoeSwitch[]>(initialPoeSwitches.map(p => ({...p, ipAddress: ''})));
+  const [cameras, setCameras] = useLocalStorageState<Camera[]>('cameras', initialCameras);
+  const [nvrs, setNvrs] = useLocalStorageState<NVR[]>('nvrs', initialNvrs);
+  const [poeSwitches, setPoeSwitches] = useLocalStorageState<PoeSwitch[]>('poeSwitches', initialPoeSwitches);
 
   const renderPage = () => {
     switch (activePage) {
