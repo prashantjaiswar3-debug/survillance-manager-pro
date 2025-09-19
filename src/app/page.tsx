@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { DashboardHorizontalNav } from '@/components/dashboard/DashboardHorizontalNav';
 import { CamerasPage, type Camera } from '@/components/dashboard/pages/Cameras';
@@ -11,6 +11,8 @@ import { IPScannerPage } from '@/components/dashboard/pages/IPScanner';
 import { ZonesPage } from '@/components/dashboard/pages/Zones';
 import { menuItems } from '@/components/dashboard/DashboardHorizontalNav';
 import useLocalStorageState from '@/hooks/use-local-storage-state';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 type MenuItem = (typeof menuItems)[number];
 
@@ -132,6 +134,22 @@ export default function Home() {
   const [cameras, setCameras] = useLocalStorageState<Camera[]>('cameras', initialCameras);
   const [nvrs, setNvrs] = useLocalStorageState<NVR[]>('nvrs', initialNvrs);
   const [poeSwitches, setPoeSwitches] = useLocalStorageState<PoeSwitch[]>('poeSwitches', initialPoeSwitches);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthenticated === false) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, router]);
+
+  if (isAuthenticated === null || !isAuthenticated) {
+    return (
+        <div className="flex h-screen w-full items-center justify-center bg-background">
+            <div className="text-foreground">Loading...</div>
+        </div>
+    );
+  }
 
   const renderPage = () => {
     switch (activePage) {
