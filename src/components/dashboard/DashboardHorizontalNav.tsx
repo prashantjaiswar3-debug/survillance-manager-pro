@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-export const menuItems = ["Cameras", "NVRs", "POE Switch", "Todo", "IP Scanner", "Zones"] as const;
+export const menuItems = ["Cameras", "NVRs", "POE Switch", "Todo", "IP Scanner", "Zones", "Settings"] as const;
 
 type MenuItem = (typeof menuItems)[number];
 

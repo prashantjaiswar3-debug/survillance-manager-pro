@@ -9,6 +9,7 @@ import { POESwitchPage, type PoeSwitch } from '@/components/dashboard/pages/POES
 import { TodoPage } from '@/components/dashboard/pages/Todo';
 import { IPScannerPage } from '@/components/dashboard/pages/IPScanner';
 import { ZonesPage } from '@/components/dashboard/pages/Zones';
+import { SettingsPage } from '@/components/dashboard/pages/Settings';
 import { menuItems } from '@/components/dashboard/DashboardHorizontalNav';
 import useLocalStorageState from '@/hooks/use-local-storage-state';
 import { useAuth } from '@/context/AuthContext';
@@ -165,6 +166,8 @@ export default function Home() {
         return <IPScannerPage cameras={cameras} nvrs={nvrs} poeSwitches={poeSwitches} />;
       case 'Zones':
         return <ZonesPage />;
+      case 'Settings':
+        return <SettingsPage />;
       default:
         return <CamerasPage cameras={cameras} setCameras={setCameras} nvrs={nvrs} poeSwitches={poeSwitches} />;
     }

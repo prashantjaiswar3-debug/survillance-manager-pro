@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -8,12 +8,23 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Logo } from '@/components/Logo';
+import useLocalStorageState from '@/hooks/use-local-storage-state';
 
 export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
   const router = useRouter();
+  const [isDefaultPassword, setIsDefaultPassword] = useState(false);
+  
+  // We use another hook to read the value, but not set it.
+  const [storedPassword] = useLocalStorageState<string>('app-password', 'admin');
+
+
+  useEffect(() => {
+    // Check if the stored password is the default one.
+    setIsDefaultPassword(storedPassword === 'admin');
+  }, [storedPassword]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,9 +67,11 @@ export default function LoginPage() {
               Login
             </Button>
           </form>
-          <p className="mt-4 text-center text-xs text-muted-foreground">
-            Hint: The default password is `admin`.
-          </p>
+          {isDefaultPassword && (
+             <p className="mt-4 text-center text-xs text-muted-foreground">
+                Hint: The default password is `admin`.
+             </p>
+          )}
         </CardContent>
       </Card>
     </div>
