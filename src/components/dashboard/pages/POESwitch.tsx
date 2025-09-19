@@ -49,6 +49,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import type { Camera } from './Cameras';
 
 type PoeSwitchStatus = 'Online' | 'Offline' | 'Checking...';
 export type PoeSwitch = {
@@ -203,9 +204,10 @@ function PoeSwitchForm({
 type POESwitchPageProps = {
     poeSwitches: PoeSwitch[];
     setPoeSwitches: React.Dispatch<React.SetStateAction<PoeSwitch[]>>;
+    cameras: Camera[];
 };
 
-export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProps) {
+export function POESwitchPage({ poeSwitches, setPoeSwitches, cameras }: POESwitchPageProps) {
     const [selectedSwitch, setSelectedSwitch] = useState<PoeSwitch | null>(null);
     const [isStickerOpen, setIsStickerOpen] = useState(false);
     const [statusFilter, setStatusFilter] = useState('All');
@@ -218,35 +220,26 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
     useEffect(() => {
         if (!isClient) return;
     
-        const updateAllStatuses = async () => {
-          setPoeSwitches(prevSwitches => prevSwitches.map(s => ({...s, status: 'Checking...'})));
-          const promises = poeSwitches.map(async (sw) => {
-            try {
-              const response = await fetch(`/api/ping?ip=${sw.ipAddress}`);
-              if (!response.ok) {
-                return { id: sw.id, status: 'Offline' as PoeSwitchStatus };
-              }
-              const data = await response.json();
-              return { id: sw.id, status: data.status as PoeSwitchStatus };
-            } catch (error) {
-              return { id: sw.id, status: 'Offline' as PoeSwitchStatus };
-            }
-          });
-    
-          const results = await Promise.all(promises);
-          setPoeSwitches(prevSwitches =>
+        const updateSwitchStatuses = () => {
+          setPoeSwitches(prevSwitches => 
             prevSwitches.map(sw => {
-              const update = results.find(r => r.id === sw.id);
-              return update ? { ...sw, status: update.status } : sw;
+              const connectedCameras = cameras.filter(cam => cam.poeSwitch === sw.id);
+              if (connectedCameras.length === 0) {
+                return { ...sw, status: 'Online' as PoeSwitchStatus };
+              }
+              const isAnyCameraOnline = connectedCameras.some(cam => cam.status === 'Online');
+              const newStatus = isAnyCameraOnline ? 'Online' : 'Offline';
+              return { ...sw, status: newStatus as PoeSwitchStatus };
             })
           );
         };
         
-        updateAllStatuses();
-        const interval = setInterval(updateAllStatuses, 10000); // 10 seconds
+        updateSwitchStatuses();
+        // Since camera statuses update every 10s, we can sync with that
+        const interval = setInterval(updateSwitchStatuses, 10000); 
     
         return () => clearInterval(interval);
-      }, [isClient, poeSwitches.length]);
+      }, [isClient, cameras, setPoeSwitches]);
 
     const filteredPoeSwitches = poeSwitches.filter(sw => {
         if (statusFilter === 'All') return true;
@@ -317,7 +310,7 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
           <div>
               <CardTitle>POE Switches</CardTitle>
               <CardDescription>
-              Manage your Power Over Ethernet switches. Statuses auto-refresh.
+              Manage your Power Over Ethernet switches. Status is based on connected devices.
               </CardDescription>
           </div>
           <div className="flex items-center gap-2">
@@ -329,7 +322,6 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
                   <SelectItem value="All">All Statuses</SelectItem>
                   <SelectItem value="Online">Online</SelectItem>
                   <SelectItem value="Offline">Offline</SelectItem>
-                  <SelectItem value="Checking...">Checking...</SelectItem>
                 </SelectContent>
               </Select>
             <Button size="sm" className="h-8 gap-1" onClick={handlePrintAllStickers}>

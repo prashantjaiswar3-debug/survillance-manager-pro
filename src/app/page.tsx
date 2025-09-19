@@ -159,7 +159,7 @@ export default function Home() {
       case 'NVRs':
         return <NVRsPage nvrs={nvrs} setNvrs={setNvrs} />;
       case 'POE Switch':
-        return <POESwitchPage poeSwitches={poeSwitches} setPoeSwitches={setPoeSwitches} />;
+        return <POESwitchPage poeSwitches={poeSwitches} setPoeSwitches={setPoeSwitches} cameras={cameras} />;
       case 'Todo':
         return <TodoPage />;
       case 'IP Scanner':
