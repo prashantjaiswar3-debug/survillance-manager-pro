@@ -50,7 +50,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-type NvrStatus = 'Online' | 'Offline';
+type NvrStatus = 'Online' | 'Offline' | 'Checking...';
 export type NVR = {
   id: string;
   name: string;
@@ -68,8 +68,7 @@ function NvrForm({
   onSave: (nvr: Omit<NVR, 'id'> & { id?: string }) => void;
 }) {
     const [open, setOpen] = useState(false);
-    const [status, setStatus] = useState<NvrStatus>(nvr?.status || 'Offline');
-
+    
     const isEditMode = !!nvr;
   
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -81,7 +80,7 @@ function NvrForm({
         storage: formData.get('storage') as string,
         ipAddress: formData.get('ipAddress') as string,
         channels: parseInt(formData.get('channels') as string, 10),
-        status: status,
+        status: 'Offline' as NvrStatus,
       };
       onSave(nvrData);
       setOpen(false);
@@ -115,20 +114,6 @@ function NvrForm({
                   Name
                 </Label>
                 <Input id="name" name="name" defaultValue={nvr?.name} className="col-span-3" required />
-              </div>
-               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="status" className="text-right">
-                  Status
-                </Label>
-                <Select name="status" onValueChange={(value) => setStatus(value as NvrStatus)} defaultValue={status}>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select a status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Online">Online</SelectItem>
-                    <SelectItem value="Offline">Offline</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="storage" className="text-right">
@@ -230,6 +215,39 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
         setIsClient(true);
     }, []);
 
+    useEffect(() => {
+      if (!isClient) return;
+  
+      const updateAllStatuses = async () => {
+        setNvrs(prevNvrs => prevNvrs.map(n => ({...n, status: 'Checking...'})));
+        const promises = nvrs.map(async (nvr) => {
+          try {
+            const response = await fetch(`/api/ping?ip=${nvr.ipAddress}`);
+            if (!response.ok) {
+              return { id: nvr.id, status: 'Offline' as NvrStatus };
+            }
+            const data = await response.json();
+            return { id: nvr.id, status: data.status as NvrStatus };
+          } catch (error) {
+            return { id: nvr.id, status: 'Offline' as NvrStatus };
+          }
+        });
+  
+        const results = await Promise.all(promises);
+        setNvrs(prevNvrs =>
+          prevNvrs.map(n => {
+            const update = results.find(r => r.id === n.id);
+            return update ? { ...n, status: update.status } : n;
+          })
+        );
+      };
+      
+      updateAllStatuses();
+      const interval = setInterval(updateAllStatuses, 10000); // 10 seconds
+  
+      return () => clearInterval(interval);
+    }, [isClient, nvrs.length]);
+
     const filteredNvrs = nvrs.filter(nvr => {
         if (statusFilter === 'All') return true;
         return nvr.status === statusFilter;
@@ -305,7 +323,7 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
           <div>
               <CardTitle>NVRs</CardTitle>
               <CardDescription>
-              Manage your Network Video Recorders.
+              Manage your Network Video Recorders. Statuses auto-refresh.
               </CardDescription>
           </div>
           <div className="flex items-center gap-2">
@@ -317,6 +335,7 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
                   <SelectItem value="All">All Statuses</SelectItem>
                   <SelectItem value="Online">Online</SelectItem>
                   <SelectItem value="Offline">Offline</SelectItem>
+                  <SelectItem value="Checking...">Checking...</SelectItem>
                 </SelectContent>
               </Select>
             <Button size="sm" className="h-8 gap-1" onClick={handlePrintAllStickers}>
@@ -354,7 +373,7 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
                           variant={
                             nvr.status === 'Online'
                               ? 'default'
-                              : 'destructive'
+                              : nvr.status === 'Offline' ? 'destructive' : 'secondary'
                           }
                         >
                           {nvr.status}
@@ -363,6 +382,12 @@ export function NVRsPage({ nvrs, setNvrs }: NVRsPageProps) {
                           <span className="relative flex h-3 w-3">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                          </span>
+                        )}
+                         {nvr.status === 'Checking...' && (
+                          <span className="relative flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
                           </span>
                         )}
                       </div>

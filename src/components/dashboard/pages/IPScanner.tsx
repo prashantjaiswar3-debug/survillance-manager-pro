@@ -38,8 +38,9 @@ export function IPScannerPage({ cameras, nvrs, poeSwitches }: IPScannerPageProps
         const ips = new Map<string, { type: string, name: string }>();
         cameras.forEach(c => ips.set(c.ipAddress, { type: 'Camera', name: c.name }));
         nvrs.forEach(n => ips.set(n.ipAddress, { type: 'NVR', name: n.name }));
+        poeSwitches.forEach(p => ips.set(p.ipAddress, { type: 'POE Switch', name: p.name }));
         return ips;
-    }, [cameras, nvrs]);
+    }, [cameras, nvrs, poeSwitches]);
 
     const ipList = useMemo(() => {
         if (!isValidIp(ipRangeStart) || !isValidIp(ipRangeEnd)) return [];
@@ -64,7 +65,7 @@ export function IPScannerPage({ cameras, nvrs, poeSwitches }: IPScannerPageProps
 
     const handleScan = () => {
         setIsScanning(true);
-        // Simulate network scan
+        // This is a cosmetic simulation. A real IP scan would happen on a backend.
         setTimeout(() => {
             setIsScanning(false);
         }, 1500);
@@ -86,8 +87,7 @@ export function IPScannerPage({ cameras, nvrs, poeSwitches }: IPScannerPageProps
                 <Input id="ip-start" value={ipRangeStart} onChange={(e) => setIpRangeStart(e.target.value)} />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="ip-end">IP Range End</Label>
-                <Input id="ip-end" value={ipRangeEnd} onChange={(e) => setIpRangeEnd(e.target.value)} />
+                <Label htmlFor="ip-end">IP Range End</Label>                <Input id="ip-end" value={ipRangeEnd} onChange={(e) => setIpRangeEnd(e.target.value)} />
             </div>
             <div className="flex items-end">
                 <Button onClick={handleScan} disabled={isScanning} className="w-full">

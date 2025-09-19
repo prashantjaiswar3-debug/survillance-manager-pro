@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { DashboardHorizontalNav } from '@/components/dashboard/DashboardHorizontalNav';
 import { CamerasPage, type Camera } from '@/components/dashboard/pages/Cameras';
@@ -18,7 +18,7 @@ const initialCameras: Camera[] = [
   {
     id: 'CAM-001',
     name: 'CAM-001',
-    status: 'Online',
+    status: 'Offline',
     location: 'Lobby',
     ipAddress: '192.168.1.10',
     zone: 'Zone 1',
@@ -30,7 +30,7 @@ const initialCameras: Camera[] = [
   {
     id: 'CAM-002',
     name: 'CAM-002',
-    status: 'Online',
+    status: 'Offline',
     location: 'Office',
     ipAddress: '192.168.1.11',
     zone: 'Zone 1',
@@ -54,7 +54,7 @@ const initialCameras: Camera[] = [
   {
     id: 'CAM-004',
     name: 'CAM-004',
-    status: 'Online',
+    status: 'Offline',
     location: 'Parking Lot',
     ipAddress: '192.168.1.13',
     zone: 'Outdoor',
@@ -78,7 +78,7 @@ const initialCameras: Camera[] = [
   {
     id: 'CAM-006',
     name: 'CAM-006',
-    status: 'Online',
+    status: 'Offline',
     location: 'Rooftop',
     ipAddress: '192.168.1.15',
     zone: 'Outdoor',
@@ -93,7 +93,7 @@ const initialNvrs: NVR[] = [
   {
     id: 'NVR-001',
     name: 'NVR-001',
-    status: 'Online',
+    status: 'Offline',
     storage: '8 TB',
     ipAddress: '192.168.1.100',
     channels: 8,
@@ -112,8 +112,9 @@ const initialPoeSwitches: PoeSwitch[] = [
   {
     id: 'SW-001',
     name: 'SW-001',
-    status: 'Online',
+    status: 'Offline',
     model: 'UniFi Switch 24 POE',
+    ipAddress: '192.168.1.200',
     ports: 24,
   },
   {
@@ -121,6 +122,7 @@ const initialPoeSwitches: PoeSwitch[] = [
     name: 'SW-002',
     status: 'Offline',
     model: 'UniFi Switch 16 POE',
+    ipAddress: '192.168.1.201',
     ports: 16,
   },
 ];

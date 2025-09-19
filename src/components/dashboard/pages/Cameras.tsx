@@ -52,7 +52,7 @@ import QRCode from 'qrcode';
 import type { NVR } from './NVRs';
 import type { PoeSwitch } from './POESwitch';
 
-type CameraStatus = 'Online' | 'Offline';
+type CameraStatus = 'Online' | 'Offline' | 'Checking...';
 export type Camera = {
   id: string;
   name: string;
@@ -76,7 +76,7 @@ function CameraForm({
   poeSwitches
 }: {
   camera?: Camera;
-  onSave: (camera: Omit<Camera, 'id'> & { id?: string }) => void;
+  onSave: (camera: Omit<Camera, 'id' | 'status'> & { id?: string; status: CameraStatus }) => void;
   allCameras: Camera[];
   nvrs: NVR[];
   poeSwitches: PoeSwitch[];
@@ -87,7 +87,6 @@ function CameraForm({
   const [poeSwitch, setPoeSwitch] = useState(camera?.poeSwitch || '');
   const [channel, setChannel] = useState(camera?.channel?.toString() || '');
   const [port, setPort] = useState(camera?.port?.toString() || '');
-  const [status, setStatus] = useState<CameraStatus>(camera?.status || 'Offline');
 
   const isEditMode = !!camera;
 
@@ -104,7 +103,7 @@ function CameraForm({
       channel: parseInt(channel, 10),
       poeSwitch: poeSwitch,
       port: parseInt(port, 10),
-      status: status,
+      status: 'Offline' as CameraStatus,
     };
     onSave(newCameraData);
     setOpen(false);
@@ -163,20 +162,6 @@ function CameraForm({
                 IP Address
               </Label>
               <Input id="ipAddress" name="ipAddress" defaultValue={camera?.ipAddress} className="col-span-3" required />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="status" className="text-right">
-                  Status
-                </Label>
-                <Select name="status" onValueChange={(value) => setStatus(value as CameraStatus)} defaultValue={status}>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select a status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Online">Online</SelectItem>
-                    <SelectItem value="Offline">Offline</SelectItem>
-                  </SelectContent>
-                </Select>
             </div>
              <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="zone" className="text-right">
@@ -348,6 +333,40 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
     setIsClient(true);
   }, []);
 
+  useEffect(() => {
+    if (!isClient) return;
+
+    const updateAllStatuses = async () => {
+      setCameras(prevCameras => prevCameras.map(c => ({...c, status: 'Checking...'})));
+      const promises = cameras.map(async (camera) => {
+        try {
+          const response = await fetch(`/api/ping?ip=${camera.ipAddress}`);
+          if (!response.ok) {
+            return { id: camera.id, status: 'Offline' as CameraStatus };
+          }
+          const data = await response.json();
+          return { id: camera.id, status: data.status as CameraStatus };
+        } catch (error) {
+          return { id: camera.id, status: 'Offline' as CameraStatus };
+        }
+      });
+
+      const results = await Promise.all(promises);
+      setCameras(prevCameras =>
+        prevCameras.map(cam => {
+          const update = results.find(r => r.id === cam.id);
+          return update ? { ...cam, status: update.status } : cam;
+        })
+      );
+    };
+    
+    updateAllStatuses();
+    const interval = setInterval(updateAllStatuses, 10000); // 10 seconds
+
+    return () => clearInterval(interval);
+  }, [isClient, cameras.length]);
+
+
   const filteredCameras = cameras.filter(camera => {
     if (statusFilter === 'All') return true;
     return camera.status === statusFilter;
@@ -449,7 +468,7 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
           <div>
             <CardTitle>Cameras</CardTitle>
             <CardDescription>
-              A list of all camera devices on the network.
+              A list of all camera devices on the network. Statuses auto-refresh.
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
@@ -461,6 +480,7 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
                   <SelectItem value="All">All Statuses</SelectItem>
                   <SelectItem value="Online">Online</SelectItem>
                   <SelectItem value="Offline">Offline</SelectItem>
+                  <SelectItem value="Checking...">Checking...</SelectItem>
                 </SelectContent>
               </Select>
             <Button size="sm" className="h-8 gap-1" onClick={handleDownloadPdf}>
@@ -504,9 +524,9 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
                       <div className="flex items-center gap-2">
                         <Badge
                           variant={
-                            camera.status === 'Online'
-                              ? 'default'
-                              : 'destructive'
+                            camera.status === 'Online' ? 'default'
+                            : camera.status === 'Offline' ? 'destructive'
+                            : 'secondary'
                           }
                         >
                           {camera.status}
@@ -515,6 +535,12 @@ export function CamerasPage({ cameras, setCameras, nvrs, poeSwitches }: CamerasP
                           <span className="relative flex h-3 w-3">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                          </span>
+                        )}
+                         {camera.status === 'Checking...' && (
+                          <span className="relative flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
                           </span>
                         )}
                       </div>

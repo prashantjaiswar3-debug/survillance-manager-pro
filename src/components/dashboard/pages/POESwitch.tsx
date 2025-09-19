@@ -50,12 +50,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-type PoeSwitchStatus = 'Online' | 'Offline';
+type PoeSwitchStatus = 'Online' | 'Offline' | 'Checking...';
 export type PoeSwitch = {
   id: string;
   name: string;
   status: PoeSwitchStatus;
   model: string;
+  ipAddress: string;
   ports: number;
 };
 
@@ -67,8 +68,7 @@ function PoeSwitchForm({
   onSave: (poeSwitch: Omit<PoeSwitch, 'id'> & { id?: string }) => void;
 }) {
     const [open, setOpen] = useState(false);
-    const [status, setStatus] = useState<PoeSwitchStatus>(poeSwitch?.status || 'Offline');
-
+    
     const isEditMode = !!poeSwitch;
   
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -78,8 +78,9 @@ function PoeSwitchForm({
         id: poeSwitch?.id,
         name: formData.get('name') as string,
         model: formData.get('model') as string,
+        ipAddress: formData.get('ipAddress') as string,
         ports: parseInt(formData.get('ports') as string, 10),
-        status: status,
+        status: 'Offline' as PoeSwitchStatus,
       };
       onSave(poeSwitchData);
       setOpen(false);
@@ -115,24 +116,16 @@ function PoeSwitchForm({
                 <Input id="name" name="name" defaultValue={poeSwitch?.name} className="col-span-3" required />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="status" className="text-right">
-                  Status
-                </Label>
-                <Select name="status" onValueChange={(value) => setStatus(value as PoeSwitchStatus)} defaultValue={status}>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select a status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Online">Online</SelectItem>
-                    <SelectItem value="Offline">Offline</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="model" className="text-right">
                   Model
                 </Label>
                 <Input id="model" name="model" defaultValue={poeSwitch?.model} className="col-span-3" required />
+              </div>
+               <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="ipAddress" className="text-right">
+                  IP Address
+                </Label>
+                <Input id="ipAddress" name="ipAddress" defaultValue={poeSwitch?.ipAddress} className="col-span-3" required />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="ports" className="text-right">
@@ -167,10 +160,11 @@ function PoeSwitchForm({
           doc.setFontSize(10);
           doc.text(`ID: ${device.id}`, 0.2, 0.8);
           doc.text(`Model: ${device.model}`, 0.2, 1.0);
-          doc.text(`Ports: ${device.ports}`, 0.2, 1.2);
+          doc.text(`IP: ${device.ipAddress}`, 0.2, 1.2);
+          doc.text(`Ports: ${device.ports}`, 0.2, 1.4);
   
           try {
-            const qrCodeDataUrl = await QRCode.toDataURL(device.id, { errorCorrectionLevel: 'H' });
+            const qrCodeDataUrl = await QRCode.toDataURL(device.ipAddress, { errorCorrectionLevel: 'H' });
             doc.addImage(qrCodeDataUrl, 'PNG', 2.5, 0.2, 1.3, 1.3);
           } catch (err) {
             console.error(err);
@@ -220,6 +214,39 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
     useEffect(() => {
       setIsClient(true);
     }, []);
+
+    useEffect(() => {
+        if (!isClient) return;
+    
+        const updateAllStatuses = async () => {
+          setPoeSwitches(prevSwitches => prevSwitches.map(s => ({...s, status: 'Checking...'})));
+          const promises = poeSwitches.map(async (sw) => {
+            try {
+              const response = await fetch(`/api/ping?ip=${sw.ipAddress}`);
+              if (!response.ok) {
+                return { id: sw.id, status: 'Offline' as PoeSwitchStatus };
+              }
+              const data = await response.json();
+              return { id: sw.id, status: data.status as PoeSwitchStatus };
+            } catch (error) {
+              return { id: sw.id, status: 'Offline' as PoeSwitchStatus };
+            }
+          });
+    
+          const results = await Promise.all(promises);
+          setPoeSwitches(prevSwitches =>
+            prevSwitches.map(sw => {
+              const update = results.find(r => r.id === sw.id);
+              return update ? { ...sw, status: update.status } : sw;
+            })
+          );
+        };
+        
+        updateAllStatuses();
+        const interval = setInterval(updateAllStatuses, 10000); // 10 seconds
+    
+        return () => clearInterval(interval);
+      }, [isClient, poeSwitches.length]);
 
     const filteredPoeSwitches = poeSwitches.filter(sw => {
         if (statusFilter === 'All') return true;
@@ -290,7 +317,7 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
           <div>
               <CardTitle>POE Switches</CardTitle>
               <CardDescription>
-              Manage your Power Over Ethernet switches.
+              Manage your Power Over Ethernet switches. Statuses auto-refresh.
               </CardDescription>
           </div>
           <div className="flex items-center gap-2">
@@ -302,6 +329,7 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
                   <SelectItem value="All">All Statuses</SelectItem>
                   <SelectItem value="Online">Online</SelectItem>
                   <SelectItem value="Offline">Offline</SelectItem>
+                  <SelectItem value="Checking...">Checking...</SelectItem>
                 </SelectContent>
               </Select>
             <Button size="sm" className="h-8 gap-1" onClick={handlePrintAllStickers}>
@@ -322,6 +350,7 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
                   <TableHead>Name</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Model</TableHead>
+                  <TableHead>IP Address</TableHead>
                   <TableHead>Ports</TableHead>
                   <TableHead>
                     <span className="sr-only">Actions</span>
@@ -338,7 +367,7 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
                           variant={
                             sw.status === 'Online'
                               ? 'default'
-                              : 'destructive'
+                              : sw.status === 'Offline' ? 'destructive' : 'secondary'
                           }
                         >
                           {sw.status}
@@ -349,9 +378,16 @@ export function POESwitchPage({ poeSwitches, setPoeSwitches }: POESwitchPageProp
                             <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                           </span>
                         )}
+                        {sw.status === 'Checking...' && (
+                          <span className="relative flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
+                          </span>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>{sw.model}</TableCell>
+                    <TableCell>{sw.ipAddress}</TableCell>
                     <TableCell>{sw.ports}</TableCell>
                     <TableCell>
                         <DropdownMenu>
